@@ -41,7 +41,7 @@ nav.tab-nav {
   position: relative !important;
   display: flex !important;
   align-items: center !important;
-  width: 100% !important;
+  width: 90% !important;
   max-width: 500px !important;
   height: 52px !important; /* 👈 高さを固定して安定させます */
   margin: 0 auto 30px auto !important;
@@ -83,7 +83,7 @@ nav.tab-nav .tab-item {
   text-decoration: none !important;
   font-size: 0.85rem !important;
   font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.3px !important;
   transition: color 0.3s ease !important;
   background: none !important;
   border: none !important;
@@ -121,8 +121,8 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.9) !important;
   border-radius: 28px !important;
   box-shadow: 0 20px 40px rgba(50, 60, 75, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
-  width:100%;
-  max-width:420px;
+  width:90%;
+  max-width:600px;
   margin:0 auto;
   padding:25px;
 }

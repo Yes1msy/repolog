@@ -33,8 +33,8 @@
 
 <nav class="tab-nav record-active">
   <div class="glider"></div>
-  <a href="record.html" class="tab-item">記録する / NEW RECORD</a>
-  <a href="archive.html" class="tab-item">過去のレポ / ARCHIVE</a>
+  <a href="record.html" class="tab-item">記録する</a>
+  <a href="archive.html" class="tab-item">過去のレポ</a>
 </nav>
 
 <!-- 2. メインコンテンツエリア -->
@@ -203,7 +203,7 @@
 </div>
 
 <footer>
-  <p>@_Yes1msy / RPLG</p>
+  <p>@blink3times / RPLG</p>
 </footer>
 
 <script>
@@ -698,11 +698,12 @@ const file = new File([blob], 'repolog_experiment.png', {
   type: 'image/png'
 });
 
-// iPhone・Safariでは共有画面から保存
-const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+// モバイル端末（スマホ・タブレット）かどうかを判定
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+// スマホ端末 且つ ファイル共有に対応している場合のみ「共有シート」を開く
 if (
-  isIOS &&
+  isMobile &&
   navigator.share &&
   navigator.canShare &&
   navigator.canShare({ files: [file] })
