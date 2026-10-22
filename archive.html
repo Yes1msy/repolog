@@ -1,32 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="_Yes1msy">
-<meta name="description" content="接触イベントのレポをまとめる">
-<title>repolog</title>
+<meta name="description" content="接触イベントのレポをまとめるツール">
+<title>RPLG - レポログ</title>
 <link href="style.css" rel="stylesheet">
+
+<!-- html2canvasライブラリの読み込み -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </head>
 <body>
 
-<!-- 1. ヘッダー&ナビゲーション（共通） -->
-<header>
-<h1>非日常的接触空間における言動の再現と検証</h1>
+<!-- 1. ヘッダー & ナビゲーション -->
+<header style="position: relative;">
+  <!-- 総合TOPに戻るボタン（右上にちょこんと配置） -->
+  <a href="index.html" style="position: absolute; right: 10px; top: 0; font-size: 0.8rem; text-decoration: none; color: #666; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 12px; border: 1px solid #ddd;">
+    総合TOP
+  </a>
+
+<!-- ヘッダーロゴ部分 -->
+<div class="site-header">
+  <h1 class="logo-title">
+    <a href="record.html">
+      <img src="logo.png" alt="RPLG" class="header-logo-img">
+    </a>
+  </h1>
+</div>
 </header>
-<div class="content">
-<nav>
-<ul>
-<li><a href="index.html">序論/TOP</a></li>
-<li><a href="record.html">実験結果/NEW RECORD</a></li>
-<li><a href="archive.html">先行研究/ARCHIVE</a></li>
-</ul>
+
+<nav class="tab-nav archive-active">
+  <div class="glider"></div>
+  <a href="record.html" class="tab-item">記録する / NEW RECORD</a>
+  <a href="archive.html" class="tab-item">過去のレポ / ARCHIVE</a>
 </nav>
 
 <!-- 2. メインコンテンツエリア -->
 <main>
-<h2>先行研究/ARCHIVE</h2>
-<p>過去に執筆したレポの保管庫です。</p>
+<h2>ARCHIVE</h2>
+<p style="font-size: 0.82rem; color: #666; text-align: left; margin-top: -10px; margin-bottom: 24px; line-height: 1.5;">
+    過去に作成・保存した推し活レポの履歴です。<br>いつでも見返しや削除ができます。
+  </p>
 
 <!-- 保存されたレポカードが並ぶ場所 -->
 <div id="archive-list">
@@ -37,7 +53,7 @@
 </div>
 
 <footer>
-<p>@_Yes1msy</p>
+  <p>@_Yes1msy / RPLG</p>
 </footer>
 
 <script>
@@ -85,6 +101,10 @@
           <button type="button" onclick="deleteArchive(${index})" style="background-color: #1e1e1e; padding: 6px 12px; font-size: 0.75rem;">このデータを削除</button>
         </div>
       `;
+
+// 中にある「×印」とクリック編集を消す
+      card.querySelectorAll('.chat-delete-btn').forEach(btn => btn.style.display = 'none');
+      card.querySelectorAll('.chat-bubble, .chat-system-inner').forEach(el => el.onclick = null);
 
       // アイコン画像が保存されている場合は復元する処理
       if (item.myIcon) {

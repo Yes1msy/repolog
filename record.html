@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="_Yes1msy">
-<meta name="description" content="接触イベントのレポをまとめる">
-<title>repolog</title>
+<meta name="description" content="接触イベントのレポをまとめるツール">
+<title>RPLG - レポログ</title>
 <link href="style.css" rel="stylesheet">
 
 <!-- html2canvasライブラリの読み込み -->
@@ -14,29 +14,43 @@
 </head>
 <body>
 
-<!-- 1. ヘッダー&ナビゲーション（共通） -->
-<header>
-<h1>非日常的接触空間における言動の再現と検証</h1>
+<!-- 1. ヘッダー & ナビゲーション -->
+<header style="position: relative;">
+  <!-- 総合TOPに戻るボタン（右上にちょこんと配置） -->
+  <a href="index.html" style="position: absolute; right: 10px; top: 0; font-size: 0.8rem; text-decoration: none; color: #666; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 12px; border: 1px solid #ddd;">
+    総合TOP
+  </a>
+
+<!-- ヘッダーロゴ部分 -->
+<div class="site-header">
+  <h1 class="logo-title">
+    <a href="record.html">
+      <img src="logo.png" alt="RPLG" class="header-logo-img">
+    </a>
+  </h1>
+</div>
 </header>
-<div class="content">
-<nav>
-<ul>
-<li><a href="index.html">序論/TOP</a></li>
-<li><a href="record.html">実験結果/NEW RECORD</a></li>
-<li><a href="archive.html">先行研究/ARCHIVE</a></li>
-</ul>
+
+<nav class="tab-nav record-active">
+  <div class="glider"></div>
+  <a href="record.html" class="tab-item">記録する / NEW RECORD</a>
+  <a href="archive.html" class="tab-item">過去のレポ / ARCHIVE</a>
 </nav>
 
 <!-- 2. メインコンテンツエリア -->
 <main>
-<h2>実験結果/NEW RECORD</h2>
+<h2>NEW RECORD</h2>
+
+<p style="font-size: 0.82rem; color: #666; text-align: left; margin-top: -10px; margin-bottom: 24px; line-height: 1.5;">
+  推しとの特別な瞬間や接触レポを、<br>可愛いチャット風画像にまとめて保存するツールです。
+</p>
 
 <!-- ①イベント情報の入力 -->
 <section>
 <h3>1.イベント情報の入力</h3>
 <div>
 <label>イベント名:</label>
-<input type="text" id="input-event" placeholder="例:『ラブリーズン』リリイベ" oninput="updateHeaderInfo()">
+<input type="text" id="input-event" placeholder="イベントのタイトル" oninput="updateHeaderInfo()">
 </div>
 <div>
 <label>日付:</label>
@@ -44,24 +58,39 @@
 </div>
 <div>
 <label>場所:</label>
-<input type="text" id="input-place" placeholder="例:エミテラス所沢" oninput="updateHeaderInfo()">
+<input type="text" id="input-place" placeholder="会場名・地名 など" oninput="updateHeaderInfo()">
 </div>
 <div>
 <label>推し:</label>
-<input type="text" id="input-oshi" placeholder="例:桜木雅哉" oninput="updateHeaderInfo()">
+<input type="text" id="input-oshi" placeholder="推しの名前を入力" oninput="updateHeaderInfo()">
 </div>
-<div>
-<label>テーマカラー:</label>
-<select id="theme-select" onchange="changeTheme()">
-<option value="theme-yellow">黄</option>
-<option value="theme-gray">白</option>
-<option value="theme-pink">ピンク</option>
-<option value="theme-blue">青</option>
-<option value="theme-red">赤</option>
-<option value="theme-green">緑</option>
-<option value="theme-purple">紫</option>
-<option value="theme-dark" selected>黒</option>
-</select>
+
+<div class="theme-picker">
+  <label>テーマカラー:</label>
+
+  <div class="theme-color-options">
+    <button type="button" class="theme-color-btn" data-theme="theme-dark" style="--swatch:#555555" aria-label="黒" title="黒" aria-pressed="true" onclick="selectTheme('theme-dark')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-yellow" style="--swatch:#ffe44d" aria-label="黄" title="黄" aria-pressed="false" onclick="selectTheme('theme-yellow')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-gray" style="--swatch:#cccccc" aria-label="白" title="白" aria-pressed="false" onclick="selectTheme('theme-gray')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-pink" style="--swatch:#f9b5de" aria-label="ピンク" title="ピンク" aria-pressed="false" onclick="selectTheme('theme-pink')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-blue" style="--swatch:#87ceeb" aria-label="青" title="青" aria-pressed="false" onclick="selectTheme('theme-blue')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-red" style="--swatch:#ff9999" aria-label="赤" title="赤" aria-pressed="false" onclick="selectTheme('theme-red')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-green" style="--swatch:#98fb98" aria-label="緑" title="緑" aria-pressed="false" onclick="selectTheme('theme-green')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-purple" style="--swatch:#dda0dd" aria-label="紫" title="紫" aria-pressed="false" onclick="selectTheme('theme-purple')"></button>
+  </div>
+
+  <span id="selected-theme-name" class="selected-theme-name">BLACK / 黒</span>
+
+  <select id="theme-select" onchange="changeTheme()" class="theme-select-hidden" aria-hidden="true" tabindex="-1">
+    <option value="theme-dark" selected>黒</option>
+    <option value="theme-yellow">黄</option>
+    <option value="theme-gray">白</option>
+    <option value="theme-pink">ピンク</option>
+    <option value="theme-blue">青</option>
+    <option value="theme-red">赤</option>
+    <option value="theme-green">緑</option>
+    <option value="theme-purple">紫</option>
+  </select>
 </div>
 
 <div>
@@ -94,6 +123,7 @@
 <div id="oshi-heart-group">
 <label>アイコンの色:</label>
 <select id="heart-select">
+<option value="🖤">黒</option>
 <option value="💛">黄色</option>
 <option value="🤍">白</option>
 <option value="🩷">ピンク</option>
@@ -101,7 +131,6 @@
 <option value="❤️">赤</option>
 <option value="💚">緑</option>
 <option value="💜">紫</option>
-<option value="🖤">黒</option>
 </select>
 </div>
 
@@ -117,7 +146,7 @@
 <h3>3.動作の追加</h3>
 <div>
 <label>出来事:</label>
-<input type="text" id="action-input" placeholder="例:アザジャを受け取る">
+<input type="text" id="action-input" placeholder="推しや自分の行動など">
 </div>
 <button type="button" onclick="addAction()">動作を追加する</button>
 </section>
@@ -127,7 +156,7 @@
 <h3>4.メモの追加</h3>
 <div>
 <label for="memo">メモ:</label>
-<textarea id="memo" rows="3" cols="40" placeholder="例:衣装がかっこよかった！" oninput="updateMemo()"></textarea>
+<textarea id="memo" rows="3" cols="40" placeholder="自由に感想などを書こう！" oninput="updateMemo()"></textarea>
 </div>
 </section>
 
@@ -160,22 +189,21 @@
 </div>
 </section>
 
-<!-- ⑥アーカイブ保存ボタン -->
+<!-- ⑥ 画像出力 ＆ アーカイブ保存を1つに統合したボタン -->
 <section>
-<h3>6.データの保存</h3>
-<button type="button" onclick="saveRecord()" class="btn-record">レポをアーカイブに記録する</button>
-</section>
-
-<!-- ⑦画像出力ボタン -->
-<section>
-<h3>7. 画像出力</h3>
-<button type="button" onclick="exportImage()" class="btn-record">レポを画像として保存する</button>
+  <h3>6. 記録と保存</h3>
+<div style="text-align: center; margin-top: 24px;">
+  <button type="button" onclick="exportAndSaveRecord()" class="btn-record">
+    画像をダウンロードして保存
+  </button>
+</div>
 </section>
 
 </main>
 </div>
+
 <footer>
-<p>@_Yes1msy</p>
+  <p>@_Yes1msy / RPLG</p>
 </footer>
 
 <script>
@@ -195,14 +223,52 @@
   }
 
   // 2. テーマカラー変更関数
-  function changeTheme() {
-    const themeSelect = document.getElementById('theme-select').value;
-    const container = document.getElementById('preview-container');
-    
-    // 既存のテーマクラスを削除
-    container.classList.remove('theme-dark', 'theme-pink', 'theme-red', 'theme-blue', 'theme-green', 'theme-purple', 'theme-yellow', 'theme-gray');
-    container.classList.add(themeSelect);
-  }
+
+
+function changeTheme() {
+  const themeSelect = document.getElementById('theme-select');
+  const theme = themeSelect.value;
+  const container = document.getElementById('preview-container');
+
+  container.classList.remove(
+    'theme-dark',
+    'theme-yellow',
+    'theme-gray',
+    'theme-pink',
+    'theme-blue',
+    'theme-red',
+    'theme-green',
+    'theme-purple'
+  );
+  container.classList.add(theme);
+
+  // 選択中の色ボタンを更新
+  document.querySelectorAll('.theme-color-btn').forEach(btn => {
+    const selected = btn.dataset.theme === theme;
+    btn.classList.toggle('is-selected', selected);
+    btn.setAttribute('aria-pressed', String(selected));
+  });
+
+  const names = {
+    'theme-dark': 'BLACK / 黒',
+    'theme-yellow': 'YELLOW / 黄',
+    'theme-gray': 'WHITE / 白',
+    'theme-pink': 'PINK / ピンク',
+    'theme-blue': 'BLUE / 青',
+    'theme-red': 'RED / 赤',
+    'theme-green': 'GREEN / 緑',
+    'theme-purple': 'PURPLE / 紫'
+  };
+
+  const name = document.getElementById('selected-theme-name');
+  if (name) name.textContent = names[theme] || '';
+}
+
+function selectTheme(theme) {
+  const themeSelect = document.getElementById('theme-select');
+  themeSelect.value = theme;
+  changeTheme();
+}
 
   // 3. 背景パターン変更関数
   function changePattern() {
@@ -215,19 +281,6 @@
   }
 
   // 4. 自分のアイコン画像選択時処理
-  function previewMyIcon(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        myIconSrc = e.target.result;
-        updateMyIcons();
-      }
-      reader.readAsDataURL(file);
-    }
-  }
-
-// 4. 自分のアイコン画像選択時処理
   function previewMyIcon(event) {
     const file = event.target.files[0];
     if (file) {
@@ -277,9 +330,10 @@
   // 6. ページ読み込み時の初期化（※toggleHeartSelectが定義された“下”に置く）
   document.addEventListener('DOMContentLoaded', function(){
     toggleHeartSelect();
+    changeTheme();
   });
 
-  // 会話ログ（吹き出し）追加関数
+// 会話ログ（吹き出し）追加関数
   function addMessage() {
     const speakerSelect = document.getElementById('speaker-select');
     const messageInput = document.getElementById('message-input');
@@ -334,8 +388,6 @@
       bubble.classList.add('chat-me');
       
       icon.classList.add('my-icon-container');
-      
-icon.classList.add('my-icon-container');
       
 if (myIconSrc) {
         // 文字列ではなく、JSの要素として安全に作成して縦伸びを完全に防ぐ
@@ -412,7 +464,7 @@ chatLogs.appendChild(row);
   }
 
   // レポデータをlocalStorageに保存してアーカイブへ飛ぶ関数
-  function saveRecord() {
+async function exportAndSaveRecord() {
     const eventVal = document.getElementById('input-event').value || '';
     const dateVal = document.getElementById('input-date').value || '';
     const placeVal = document.getElementById('input-place').value || '';
@@ -420,9 +472,9 @@ chatLogs.appendChild(row);
     const themeVal = document.getElementById('theme-select').value;
     const patternVal = document.getElementById('pattern-select').value;
     const memoVal = document.getElementById('memo').value;
-    
     const chatLogsHtml = document.getElementById('chat-logs').innerHTML;
 
+// 1. localStorageにアーカイブ保存
     const recordData = {
       id: Date.now(),
       event: eventVal,
@@ -440,13 +492,7 @@ chatLogs.appendChild(row);
     archives.unshift(recordData);
     localStorage.setItem('repolog_archives', JSON.stringify(archives));
 
-    alert("実験結果をアーカイブに記録しました！");
-    window.location.href = "archive.html";
-  }
-
 // プレビューを画像として保存する関数（ドット柄完全対応版）
-
-async function exportImage() {
   const original = document.getElementById('preview-container');
   if (!original) return;
 
@@ -687,13 +733,16 @@ if (
 }
 
 
-  } catch (err) {
-    console.error('画像出力に失敗しました:', err);
-    alert('画像の出力に失敗しました。');
-  } finally {
-    clone.remove();
+alert("レポを保存しました！画像ダウンロードとアーカイブ記録が完了しました。");
+      window.location.href = "archive.html";
+    } catch (err) {
+      console.error('画像出力エラー:', err);
+      alert('アーカイブには保存されましたが、画像の出力に失敗しました。');
+      window.location.href = "archive.html";
+    } finally {
+      clone.remove();
+    }
   }
-}
 
 </script>
 
