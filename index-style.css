@@ -183,11 +183,11 @@ body {
   }
 
   .logo-area .logo-img {
-    max-width: 100px; /* スマホ用にロゴを少しコンパクトに */
+    max-width: 80px; /* スマホ用にロゴを少しコンパクトに */
   }
 
   .header-text {
-    font-size: 10.5px; /* 英文のフォントサイズ調整 */
+    font-size: 8px; /* 英文のフォントサイズ調整 */
     line-height: 1.4;
   }
 
@@ -202,8 +202,8 @@ body {
 
   /* 星ボタンのサイズ（スマホ用に小さくして収める） */
   .star-btn {
-    width: 240px;
-    height: 240px;
+    width: 200px;
+    height: 200px;
   }
 
   /* ★ 左寄りの星（スマホ） */
@@ -220,12 +220,12 @@ body {
 
   /* 説明テキストの文字サイズ調整 */
   .item-desc h2 {
-    font-size: 13.5px;
+    font-size: 12px;
     margin-bottom: 10px;
   }
 
   .item-desc p {
-    font-size: 10.5px;
+    font-size: 8px;
     line-height: 1.5;
   }
 }
