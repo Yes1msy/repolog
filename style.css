@@ -12,6 +12,19 @@ body{
   line-height:1.6;
 }
 
+/* すべての要素でpaddingやborderを含めた幅計算にする */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 画面全体とボディのはみ出し防止 */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 /* =========================
    ヘッダー
    ========================= */
@@ -127,6 +140,16 @@ main {
   padding:25px;
 }
 
+/* メインのカードやコンテナ枠が画面幅を超えないようにする */
+.main-card, .container, .form-card, .preview-container {
+  width: 100% !important;
+  max-width: 600px; /* お好みの最大幅 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
 /* セクションの境界をやさしく */
 main section {
   border-color: #e1e1e7;
@@ -137,6 +160,11 @@ main h2,
 main h3,
 label {
   color: #494954;
+}
+
+/* 入力欄やプレビュー枠も画面幅に収める */
+input, textarea, select {
+  max-width: 100%;
 }
 
 /* 入力欄 */

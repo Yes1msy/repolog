@@ -720,7 +720,7 @@ if (
     throw shareError;
   }
 } else {
-  // PCでは従来通りPNGをダウンロード
+  // PC（または共有非対応環境）では直接ファイルをダウンロード
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
 
@@ -733,9 +733,9 @@ if (
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-
 alert("レポを保存しました！画像ダウンロードとアーカイブ記録が完了しました。");
-      window.location.href = "archive.html";
+window.location.href = "archive.html";
+
     } catch (err) {
       console.error('画像出力エラー:', err);
       alert('アーカイブには保存されましたが、画像の出力に失敗しました。');
