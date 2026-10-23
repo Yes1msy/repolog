@@ -473,7 +473,7 @@ function updateMemo() {
   document.getElementById('prev-memo-text').textContent = memoVal || '';
 }
 
-// レポデータをlocalStorageに保存して画像を生成する関数（スマホ完全対応版）
+// レポデータをlocalStorageに保存して画像を生成する関数（柄・スマホ完全対応版）
 async function exportAndSaveRecord() {
   const eventVal = document.getElementById('input-event').value || '';
   const dateVal = document.getElementById('input-date').value || '';
@@ -508,10 +508,14 @@ async function exportAndSaveRecord() {
 
   const wrapper = container.parentElement;
 
-  // 3. キャプチャのために一時的に変形（scale）とサイズ制限を解除
+  // 3. キャプチャ前の状態を保持（復元用）
   const originalTransform = container.style.transform;
   const originalWidth = container.style.width;
   const originalHeight = wrapper ? wrapper.style.height : 'auto';
+  const originalBgImage = container.style.backgroundImage;
+  const originalBgSize = container.style.backgroundSize;
+  const originalBgPos = container.style.backgroundPosition;
+  const originalBgRepeat = container.style.backgroundRepeat;
 
   // 削除ボタンを一時的に非表示にする
   const deleteBtns = container.querySelectorAll('.chat-delete-btn');
@@ -521,6 +525,33 @@ async function exportAndSaveRecord() {
   container.style.transform = 'none';
   container.style.width = '480px';
   if (wrapper) wrapper.style.height = 'auto';
+
+  // 【重要】html2canvasが背景柄を確実に認識できるよう、テーマに応じたSVG背景をインラインで直接適用
+  const colors = {
+    'theme-yellow': '#ffe44d',
+    'theme-gray': '#cccccc',
+    'theme-pink': '#f9b5de',
+    'theme-blue': '#87ceeb',
+    'theme-red': '#ff9999',
+    'theme-green': '#98fb98',
+    'theme-purple': '#dda0dd',
+    'theme-dark': '#555555'
+  };
+  const mainColor = colors[themeVal] || '#555555';
+
+  if (patternVal === 'pattern-dots') {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="0" cy="0" r="2" fill="${mainColor}"/><circle cx="10" cy="10" r="2" fill="${mainColor}"/><circle cx="20" cy="0" r="2" fill="${mainColor}"/><circle cx="0" cy="20" r="2" fill="${mainColor}"/><circle cx="20" cy="20" r="2" fill="${mainColor}"/></svg>`;
+    container.style.backgroundImage = `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
+    container.style.backgroundSize = '20px 20px';
+    container.style.backgroundPosition = '0 0';
+    container.style.backgroundRepeat = 'repeat';
+  } else if (patternVal === 'pattern-stripe') {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><pattern id="stripe" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="10" height="20" fill="${mainColor}" fill-opacity="0.3"/></pattern></defs><rect width="28" height="28" fill="url(#stripe)"/></svg>`;
+    container.style.backgroundImage = `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
+    container.style.backgroundSize = '28px 28px';
+    container.style.backgroundPosition = '0 0';
+    container.style.backgroundRepeat = 'repeat';
+  }
 
   // 描画の反映を少し待つ
   await new Promise(resolve => setTimeout(resolve, 100));
@@ -535,20 +566,21 @@ async function exportAndSaveRecord() {
       logging: false
     });
 
-    // 5. キャプチャ完了後、すぐに元の画面表示（縮小状態）に戻す
+    // 5. キャプチャ完了後、すぐに元の画面表示に戻す
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
     if (wrapper) wrapper.style.height = originalHeight;
+    container.style.backgroundImage = originalBgImage;
+    container.style.backgroundSize = originalBgSize;
+    container.style.backgroundPosition = originalBgPos;
+    container.style.backgroundRepeat = originalBgRepeat;
     deleteBtns.forEach(btn => btn.style.display = '');
 
-    // 画像URLを作成（toDataURLはスマホでも最も安定して動作します）
     const imageUrl = canvas.toDataURL('image/png');
-
-    // 6. モバイル（スマホ・タブレット）判定
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     if (isMobile) {
-      // スマホの場合：画面上に長押し保存用モーダルを表示
+      // スマホの場合：長押し保存用モーダルを表示
       const existingModal = document.getElementById('save-modal');
       if (existingModal) existingModal.remove();
 
@@ -603,6 +635,10 @@ async function exportAndSaveRecord() {
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
     if (wrapper) wrapper.style.height = originalHeight;
+    container.style.backgroundImage = originalBgImage;
+    container.style.backgroundSize = originalBgSize;
+    container.style.backgroundPosition = originalBgPos;
+    container.style.backgroundRepeat = originalBgRepeat;
     deleteBtns.forEach(btn => btn.style.display = '');
 
     console.error('画像出力エラー:', err);
@@ -610,6 +646,7 @@ async function exportAndSaveRecord() {
     window.location.href = "archive.html";
   }
 }
+
 </script>
 
 </body>
