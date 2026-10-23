@@ -168,9 +168,6 @@ input, textarea, select {
 }
 
 /* 入力欄 */
-div{
-margin-bottom:15px;
-}
 
 label{
 display:block;
@@ -263,15 +260,33 @@ letter-spacing:0.5px;
 /* チャット風プレビューのスタイル */
 
 /* ==========================================
-   プレビューコンテナの基本枠
+   プレビューの等比縮小レイアウト（修正版）
    ========================================== */
+
+/* プレビューの外側の親枠 */
+.preview-scaler-wrapper,
+.preview-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+}
+
+/* プレビュー本体（横幅を420pxでガッチリ固定して比率を守る） */
 #preview-container {
+  width: 480px !important;
+  min-width: 480px !important;
+  max-width: 480px !important;
+  transform-origin: top center !important;
+  box-sizing: border-box !important;
   border-radius: 12px;
   padding: 0 0 20px 0;
   border: 1px solid #262626;
-  box-sizing: border-box;
   overflow: hidden;
-  transition: background-color 0.2s, border-color 0.2s;
+  will-change: transform;
 }
 
 /* ==========================================
