@@ -516,14 +516,16 @@ async function exportAndSaveRecord() {
   const originalBgSize = container.style.backgroundSize;
   const originalBgPos = container.style.backgroundPosition;
   const originalBgRepeat = container.style.backgroundRepeat;
+  const originalBorderRadius = container.style.borderRadius; // ★角丸の状態を保持
 
   // 削除ボタンを一時的に非表示にする
   const deleteBtns = container.querySelectorAll('.chat-delete-btn');
   deleteBtns.forEach(btn => btn.style.display = 'none');
 
-  // 原寸大（480px）に戻す
+  // 原寸大（480px）に戻す ＆ ★保存時は角丸を外して四角くする
   container.style.transform = 'none';
   container.style.width = '480px';
+  container.style.borderRadius = '0px'; // ★角を直角にする
   if (wrapper) wrapper.style.height = 'auto';
 
   // テーマカラーの色情報を取得
@@ -539,8 +541,8 @@ async function exportAndSaveRecord() {
   };
   const mainColor = colors[themeVal] || '#555555';
 
-// 4. 柄の生成（タイルではなく、レポート全体を1枚の絵として一気に斜めストライプを描く方式）
-  if (patternVal === 'pattern-dots' || patternVal === 'pattern-stripe') {
+  // 4. 柄の生成（ドット・チェック・ストライプに対応）
+  if (patternVal === 'pattern-dots' || patternVal === 'pattern-stripe' || patternVal === 'pattern-check') {
     const patternCanvas = document.createElement('canvas');
     const ctx = patternCanvas.getContext('2d');
 
@@ -559,8 +561,31 @@ async function exportAndSaveRecord() {
       container.style.setProperty('background-size', '20px 20px', 'important');
       container.style.setProperty('background-position', '0 0', 'important');
       container.style.setProperty('background-repeat', 'repeat', 'important');
+
+} else if (patternVal === 'pattern-check') {
+      // ユーザー様が教えてくださったCSSのグラデーション構造と完全に一致させる処理
+      patternCanvas.width = 24;
+      patternCanvas.height = 24;
+      ctx.clearRect(0, 0, 24, 24);
+      
+      ctx.fillStyle = mainColor;
+      ctx.globalAlpha = 0.35; // CSSと同じ35%の透け感
+      
+      // 1つ目のグラデーション（横方向の半分：左側を塗る）
+      ctx.fillRect(0, 0, 12, 24);
+      
+      // 2つ目のグラデーション（縦方向の半分：上側を塗る）
+      // 重なった部分が濃くなるため、本物の可愛いギンガムチェックになります
+      ctx.fillRect(0, 0, 24, 12);
+
+      const patternDataUrl = patternCanvas.toDataURL('image/png');
+      container.style.setProperty('background-image', `url("${patternDataUrl}")`, 'important');
+      container.style.setProperty('background-size', '24px 24px', 'important');
+      container.style.setProperty('background-position', '0 0', 'important');
+      container.style.setProperty('background-repeat', 'repeat', 'important');
+
     } else if (patternVal === 'pattern-stripe') {
-      // レポートコンテナ全体の実際のサイズを取得して、1枚の大きなキャンバスにする
+      // 綺麗に出力できたストライプ処理
       const bgWidth = container.offsetWidth || 480;
       const bgHeight = container.offsetHeight || 600;
 
@@ -569,12 +594,11 @@ async function exportAndSaveRecord() {
       ctx.clearRect(0, 0, bgWidth, bgHeight);
 
       ctx.strokeStyle = mainColor;
-      ctx.lineWidth = 12;      // ストライプの太さ
-      ctx.globalAlpha = 0.35; // 透け感
+      ctx.lineWidth = 12;
+      ctx.globalAlpha = 0.35;
       ctx.lineCap = 'butt';
 
-      // 画面全体を覆うように、左下から右上へ向かう（↗︎）斜め線を一気に描画する
-      const stripeInterval = 28; // 線の間隔
+      const stripeInterval = 28;
       for (let c = -bgHeight; c < bgWidth + bgHeight; c += stripeInterval) {
         ctx.beginPath();
         ctx.moveTo(c + bgHeight, -bgHeight);
@@ -583,8 +607,6 @@ async function exportAndSaveRecord() {
       }
 
       const patternDataUrl = patternCanvas.toDataURL('image/png');
-      
-      // タイル状に繰り返さず、1枚絵として全体にフィットさせる
       container.style.setProperty('background-image', `url("${patternDataUrl}")`, 'important');
       container.style.setProperty('background-size', '100% 100%', 'important');
       container.style.setProperty('background-position', '0 0', 'important');
@@ -602,8 +624,10 @@ async function exportAndSaveRecord() {
       logging: false
     });
 
+    // 5. 状態の復元
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
+    container.style.borderRadius = originalBorderRadius; // ★角丸を元に戻す
     if (wrapper) wrapper.style.height = originalHeight;
     container.style.backgroundImage = originalBgImage;
     container.style.backgroundSize = originalBgSize;
@@ -628,7 +652,7 @@ async function exportAndSaveRecord() {
       modal.innerHTML = `
         <div style="background: rgba(255, 255, 255, 0.12); padding: 20px; border-radius: 20px; text-align: center; max-width: 90%; width: 340px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
           <p style="color: #fff; font-size: 0.85rem; margin-bottom: 12px; font-weight: bold;">画像を長押しして保存してください ✦</p>
-          <img src="${imageUrl}" style="width: 100%; height: auto; border-radius: 12px; display: block; margin-bottom: 16px;" />
+          <img src="${imageUrl}" style="width: 100%; height: auto; border-radius: 0px; display: block; margin-bottom: 16px;" />
           <button id="close-modal-btn" style="background: #e08bb2; border: none; color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">過去のレポ（アーカイブ）へ</button>
         </div>
       `;
@@ -653,6 +677,7 @@ async function exportAndSaveRecord() {
   } catch (err) {
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
+    container.style.borderRadius = originalBorderRadius; // ★エラー時も元に戻す
     if (wrapper) wrapper.style.height = originalHeight;
     container.style.backgroundImage = originalBgImage;
     container.style.backgroundSize = originalBgSize;
