@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="_blink3times">
+<meta name="description" content="接触イベントのレポをまとめるツール">
+<title>RPLG - レポログ</title>
+<link href="RPLG-style.css" rel="stylesheet">
+
+<!-- html2canvasライブラリの読み込み -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</head>
+<body>
+
+<!-- 1. ヘッダー & ナビゲーション -->
+<header style="position: relative;">
+  <!-- 総合TOPに戻るボタン（右上にちょこんと配置） -->
+  <a href="index.html" style="position: absolute; right: 10px; top: 0; font-size: 0.8rem; text-decoration: none; color: #666; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 12px; border: 1px solid #ddd;">
+    総合TOP
+  </a>
+
+<!-- ヘッダーロゴ部分 -->
+<div class="site-header">
+  <h1 class="logo-title">
+    <a href="record.html">
+      <img src="images/RPLG-logo.png" alt="RPLG" class="header-logo-img">
+    </a>
+  </h1>
+</div>
+</header>
+
+<nav class="tab-nav archive-active">
+  <div class="glider"></div>
+  <a href="RPLG.html" class="tab-item">記録する</a>
+  <a href="RPLG-archive.html" class="tab-item">過去のレポ</a>
+</nav>
+
+<!-- 2. メインコンテンツエリア -->
+<main>
+<h2>ARCHIVE</h2>
+<p style="font-size: 0.82rem; color: #666; text-align: left; margin-top: -10px; margin-bottom: 24px; line-height: 1.5;">
+    過去に作成・保存した推し活レポの履歴です。<br>いつでも見返しや削除ができます。
+  </p>
+
+<!-- 保存されたレポカードが並ぶ場所 -->
+<div id="archive-list">
+  <!-- JavaScript側で自動的にラッパー付きで生成します -->
+</div>
+
+</main>
+
+<footer>
+  <p>@blink3times / RPLG</p>
+</footer>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const archiveList = document.getElementById('archive-list');
+    const archives = JSON.parse(localStorage.getItem('repolog_archives')) || [];
+
+    if (archives.length === 0) {
+      archiveList.innerHTML = '<p style="color: #888; text-align: center; padding: 40px 0;">まだレポはありません。</p>';
+      return;
+    }
+
+    archives.forEach((item, index) => {
+      // ① 各カードを包み込む親ラッパー
+      const wrapper = document.createElement('div');
+      wrapper.className = 'preview-scaler-wrapper';
+      wrapper.style.cssText = "width: 100%; display: flex; justify-content: center; overflow: hidden; margin-bottom: 30px; box-sizing: border-box;";
+
+      // ② 1件分のカード本体を作成（480px基準 ＋ 【重要】保存されたテーマと柄のクラスをここで付与！）
+      const card = document.createElement('div');
+      card.className = `archive-card ${item.theme || 'theme-pink'} ${item.pattern || 'pattern-plain'}`;
+      card.style.cssText = "width: 480px !important; min-width: 480px !important; max-width: 480px !important; transform-origin: top center !important; border-radius: 12px; border: none; margin-bottom: 0; overflow: hidden; position: relative; box-sizing: border-box;";
+
+      // カードの中身
+      card.innerHTML = `
+        <div class="preview-header-info" style="background-color: #ffffff; padding: 14px 18px; display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid #eee;">
+          <div>
+            <p style="margin: 2px 0;">Event: <b>${item.event}</b></p>
+            <p style="margin: 2px 0;">Place: ${item.place}</p>
+          </div>
+          <div>
+            <p style="margin: 2px 0;">Date: ${item.date}</p>
+            <p style="margin: 2px 0;">♥ : ${item.oshi}</p>
+          </div>
+        </div>
+
+        <div style="padding: 0 16px;">
+          ${item.chatLogs}
+        </div>
+
+        ${item.memo ? `
+        <div class="preview-memo-box" style="background: rgba(255,255,255,0.92); border-radius: 10px; padding: 12px 16px; margin: 20px 16px;">
+          <div class="preview-memo-title" style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">MEMO</div>
+          <div>${item.memo}</div>
+        </div>` : ''}
+
+        <div style="padding: 10px 16px; text-align: center;">
+          <button type="button" onclick="deleteArchive(${index})" style="background-color: #1e1e1e; padding: 6px 12px; font-size: 0.75rem; cursor: pointer;">このデータを削除</button>
+        </div>
+      `;
+
+      // 不要なボタンやクリックイベントを消去
+      card.querySelectorAll('.chat-delete-btn').forEach(btn => btn.style.display = 'none');
+      card.querySelectorAll('.chat-bubble, .chat-system-inner').forEach(el => el.onclick = null);
+
+      if (item.myIcon) {
+        const myIcons = card.querySelectorAll('.my-icon-container');
+        myIcons.forEach(icon => {
+          icon.innerHTML = `<img src="${item.myIcon}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block;">`;
+        });
+      }
+
+      // ③ カードをラッパーに入れ、ラッパーをリストに追加する
+      wrapper.appendChild(card);
+      archiveList.appendChild(wrapper);
+    });
+
+    // 描画が完了したあとに縮小処理を実行
+    setTimeout(updateArchiveScales, 50);
+});
+
+// 個別のアーカイブデータを削除する関数
+function deleteArchive(index) {
+    if (confirm("このレポを削除してもよろしいですか？")) {
+      let archives = JSON.parse(localStorage.getItem('repolog_archives')) || [];
+      archives.splice(index, 1);
+      localStorage.setItem('repolog_archives', JSON.stringify(archives));
+      location.reload();
+    }
+}
+
+// アーカイブページの全カードを 480px 基準で等比縮小する関数（修正版）
+function updateArchiveScales() {
+  const wrappers = document.querySelectorAll('.preview-scaler-wrapper');
+  if (!wrappers.length) return;
+
+  const baseWidth = 480; // 480px基準
+
+  wrappers.forEach(wrapper => {
+    const card = wrapper.querySelector('.archive-card') || wrapper.querySelector('.preview-card-item');
+    if (!card) return;
+
+    // 【重要】親枠（wrapper）自体の実際の横幅を基準にする
+    const screenWidth = wrapper.clientWidth;
+
+    if (screenWidth > 0 && screenWidth < baseWidth) {
+      // 画面（親枠）が480pxより狭い場合：縦横一緒に等比縮小
+      const scale = screenWidth / baseWidth;
+      
+      // 1. 一度リセットして本来の高さを正確に取得
+      card.style.transform = 'none';
+      const originalHeight = card.offsetHeight;
+      
+      // 2. 縮小スケールを適用
+      card.style.transform = `scale(${scale})`;
+      
+      // 3. 親ラッパーの高さを縮小後の高さに合わせる（下の隙間を防ぐ）
+      wrapper.style.height = `${originalHeight * scale}px`;
+    } else {
+      // 480px以上の広い画面の場合：原寸大（480px）
+      card.style.transform = 'none';
+      wrapper.style.height = 'auto';
+    }
+  });
+}
+
+// 実行・監視タイミング
+window.addEventListener('resize', updateArchiveScales);
+window.addEventListener('DOMContentLoaded', updateArchiveScales);
+
+const archiveListContainer = document.getElementById('archive-list');
+if (archiveListContainer) {
+  const observer = new MutationObserver(() => {
+    setTimeout(updateArchiveScales, 50);
+  });
+  observer.observe(archiveListContainer, { childList: true, subtree: true });
+}
+
+setTimeout(updateArchiveScales, 150);
+
+</script>
+
+</body>
+</html>

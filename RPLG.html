@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="_blink3times">
+<meta name="description" content="接触イベントのレポをまとめるツール">
+<title>RPLG - レポログ</title>
+<link href="RPLG-style.css" rel="stylesheet">
+
+<!-- html2canvasライブラリの読み込み -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</head>
+<body>
+
+<!-- 1. ヘッダー & ナビゲーション -->
+<header style="position: relative;">
+  <!-- 総合TOPに戻るボタン（右上にちょこんと配置） -->
+  <a href="index.html" style="position: absolute; right: 10px; top: 0; font-size: 0.8rem; text-decoration: none; color: #666; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 12px; border: 1px solid #ddd;">
+    総合TOP
+  </a>
+
+<!-- ヘッダーロゴ部分 -->
+<div class="site-header">
+  <h1 class="logo-title">
+    <a href="record.html">
+      <img src="images/RPLG-logo.png" alt="RPLG" class="header-logo-img">
+    </a>
+  </h1>
+</div>
+</header>
+
+<nav class="tab-nav record-active">
+  <div class="glider"></div>
+  <a href="RPLG.html" class="tab-item">記録する</a>
+  <a href="RPLG-archive.html" class="tab-item">過去のレポ</a>
+</nav>
+
+<!-- 2. メインコンテンツエリア -->
+<main>
+<h2>NEW RECORD</h2>
+
+<p style="font-size: 0.82rem; color: #666; text-align: left; margin-top: -10px; margin-bottom: 24px; line-height: 1.5;">
+  推しとの特別な瞬間や接触レポを、<br>可愛いチャット風画像にまとめて保存するツールです。
+</p>
+
+<!-- ①イベント情報の入力 -->
+<section>
+<h3>1.イベント情報の入力</h3>
+<div>
+<label>イベント名:</label>
+<input type="text" id="input-event" placeholder="イベントのタイトル" oninput="updateHeaderInfo()">
+</div>
+<div>
+<label>日付:</label>
+<input type="date" id="input-date" onchange="updateHeaderInfo()">
+</div>
+<div>
+<label>場所:</label>
+<input type="text" id="input-place" placeholder="会場名・地名 など" oninput="updateHeaderInfo()">
+</div>
+<div>
+<label>推し:</label>
+<input type="text" id="input-oshi" placeholder="推しの名前を入力" oninput="updateHeaderInfo()">
+</div>
+
+<div class="theme-picker">
+  <label>テーマカラー:</label>
+
+  <div class="theme-color-options">
+    <button type="button" class="theme-color-btn" data-theme="theme-dark" style="--swatch:#555555" aria-label="黒" title="黒" aria-pressed="true" onclick="selectTheme('theme-dark')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-yellow" style="--swatch:#ffe44d" aria-label="黄" title="黄" aria-pressed="false" onclick="selectTheme('theme-yellow')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-gray" style="--swatch:#cccccc" aria-label="白" title="白" aria-pressed="false" onclick="selectTheme('theme-gray')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-pink" style="--swatch:#f9b5de" aria-label="ピンク" title="ピンク" aria-pressed="false" onclick="selectTheme('theme-pink')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-blue" style="--swatch:#87ceeb" aria-label="青" title="青" aria-pressed="false" onclick="selectTheme('theme-blue')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-red" style="--swatch:#ff9999" aria-label="赤" title="赤" aria-pressed="false" onclick="selectTheme('theme-red')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-green" style="--swatch:#98fb98" aria-label="緑" title="緑" aria-pressed="false" onclick="selectTheme('theme-green')"></button>
+    <button type="button" class="theme-color-btn" data-theme="theme-purple" style="--swatch:#dda0dd" aria-label="紫" title="紫" aria-pressed="false" onclick="selectTheme('theme-purple')"></button>
+  </div>
+
+  <span id="selected-theme-name" class="selected-theme-name">BLACK / 黒</span>
+
+  <select id="theme-select" onchange="changeTheme()" class="theme-select-hidden" aria-hidden="true" tabindex="-1">
+    <option value="theme-dark" selected>黒</option>
+    <option value="theme-yellow">黄</option>
+    <option value="theme-gray">白</option>
+    <option value="theme-pink">ピンク</option>
+    <option value="theme-blue">青</option>
+    <option value="theme-red">赤</option>
+    <option value="theme-green">緑</option>
+    <option value="theme-purple">紫</option>
+  </select>
+</div>
+
+<div>
+<label>背景パターン:</label>
+<select id="pattern-select" onchange="changePattern()">
+<option value="pattern-dots">ドット（水玉）</option>
+<option value="pattern-check">ギンガムチェック</option>
+<option value="pattern-stripe">斜めストライプ</option>
+<option value="pattern-plain">無地（シンプル）</option>
+</select>
+</div>
+
+<div>
+<label>自分のアイコン画像:</label>
+<input type="file" id="my-icon-upload" accept="image/*" onchange="previewMyIcon(event)">
+</div>
+</section>
+
+<!-- ②対話・発言の追加フォーム -->
+<section>
+<h3>2.会話の追加</h3>
+<div>
+<label>話者:</label>
+<select id="speaker-select" onchange="toggleHeartSelect()">
+<option value="推し">推し</option>
+<option value="自分">自分</option>
+</select>
+</div>
+
+<div id="oshi-heart-group">
+<label>アイコンの色:</label>
+<select id="heart-select">
+<option value="🖤">黒</option>
+<option value="💛">黄色</option>
+<option value="🤍">白</option>
+<option value="🩷">ピンク</option>
+<option value="💙">青</option>
+<option value="❤️">赤</option>
+<option value="💚">緑</option>
+<option value="💜">紫</option>
+</select>
+</div>
+
+<div>
+<label>発言内容:</label>
+<input type="text" id="message-input" placeholder="セリフを入力">
+</div>
+<button type="button" onclick="addMessage()">発言を追加する</button>
+</section>
+
+<!-- ③システムメッセージの追加フォーム -->
+<section>
+<h3>3.動作の追加</h3>
+<div>
+<label>出来事:</label>
+<input type="text" id="action-input" placeholder="推しや自分の行動など">
+</div>
+<button type="button" onclick="addAction()">動作を追加する</button>
+</section>
+
+<!-- ④感想欄の追加フォーム -->
+<section>
+<h3>4.メモの追加</h3>
+<div>
+<label for="memo">メモ:</label>
+<textarea id="memo" rows="3" cols="40" placeholder="自由に感想などを書こう！" oninput="updateMemo()"></textarea>
+</div>
+</section>
+
+<!-- ⑤レポのプレビュー画面 -->
+<section>
+<h3>5.プレビュー</h3>
+<div class="preview-scaler-wrapper">
+<div id="preview-container" class="theme-dark pattern-dots">
+    
+    <!-- 上端にピッタリつく白背景のイベント情報エリア -->
+    <div class="preview-header-info">
+      <div>
+        <p>Event: <span id="prev-event"></span></p>
+        <p>Place: <span id="prev-place"></span></p>
+      </div>
+      <div>
+        <p>Date: <span id="prev-date"></span></p>
+        <p>♡ : <span id="prev-oshi"></span></p>
+      </div>
+    </div>
+
+    <!-- チャット表示エリア -->
+    <div id="chat-logs"></div>
+
+    <!-- 一番下のMEMO欄 -->
+    <div class="preview-memo-box">
+      <div class="preview-memo-title">MEMO</div>
+      <div id="prev-memo-text"></div>
+    </div>
+
+</div>
+</div>
+</section>
+
+<!-- ⑥ 画像出力 ＆ アーカイブ保存を1つに統合したボタン -->
+<section>
+  <h3>6. 記録と保存</h3>
+<div style="text-align: center; margin-top: 24px;">
+  <button type="button" onclick="exportAndSaveRecord()" class="btn-record">
+    画像をダウンロードして保存
+  </button>
+</div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p>@blink3times / RPLG</p>
+</footer>
+
+<script>
+// 【重要】未定義エラーを防ぐため、アイコン用変数をここで宣言します
+let myIconSrc = "";
+
+// ヘッダー情報（Event, Date, Place, Oshi）のリアルタイム反映
+function updateHeaderInfo() {
+  document.getElementById('prev-event').textContent = document.getElementById('input-event').value;
+  document.getElementById('prev-date').textContent = document.getElementById('input-date').value;
+  document.getElementById('prev-place').textContent = document.getElementById('input-place').value;
+  document.getElementById('prev-oshi').textContent = document.getElementById('input-oshi').value;
+}
+
+// 画面幅に合わせてプレビューを等比縮小する関数
+function updatePreviewScale() {
+  const container = document.getElementById('preview-container');
+  const wrapper = container ? container.parentElement : null;
+  if (!container || !wrapper) return;
+
+  const baseWidth = 480; // プレビューの基準幅
+  const screenWidth = wrapper.clientWidth; // 親枠の幅
+
+  if (screenWidth < baseWidth) {
+    const scale = screenWidth / baseWidth;
+    container.style.transform = 'none';
+    const originalHeight = container.offsetHeight;
+    container.style.transform = `scale(${scale})`;
+    wrapper.style.height = `${originalHeight * scale}px`;
+  } else {
+    container.style.transform = 'none';
+    wrapper.style.height = 'auto';
+  }
+}
+
+// 実行タイミング
+window.addEventListener('resize', updatePreviewScale);
+window.addEventListener('DOMContentLoaded', updatePreviewScale);
+
+document.querySelectorAll('input, textarea, select').forEach(el => {
+  el.addEventListener('input', updatePreviewScale);
+  el.addEventListener('change', updatePreviewScale);
+});
+
+setTimeout(updatePreviewScale, 100);
+
+// 2. テーマカラー変更関数
+function changeTheme() {
+  const themeSelect = document.getElementById('theme-select');
+  const theme = themeSelect.value;
+  const container = document.getElementById('preview-container');
+
+  container.classList.remove(
+    'theme-dark', 'theme-yellow', 'theme-gray', 'theme-pink',
+    'theme-blue', 'theme-red', 'theme-green', 'theme-purple'
+  );
+  container.classList.add(theme);
+
+  document.querySelectorAll('.theme-color-btn').forEach(btn => {
+    const selected = btn.dataset.theme === theme;
+    btn.classList.toggle('is-selected', selected);
+    btn.setAttribute('aria-pressed', String(selected));
+  });
+
+  const names = {
+    'theme-dark': 'BLACK / 黒',
+    'theme-yellow': 'YELLOW / 黄',
+    'theme-gray': 'WHITE / 白',
+    'theme-pink': 'PINK / ピンク',
+    'theme-blue': 'BLUE / 青',
+    'theme-red': 'RED / 赤',
+    'theme-green': 'GREEN / 緑',
+    'theme-purple': 'PURPLE / 紫'
+  };
+
+  const name = document.getElementById('selected-theme-name');
+  if (name) name.textContent = names[theme] || '';
+}
+
+function selectTheme(theme) {
+  const themeSelect = document.getElementById('theme-select');
+  themeSelect.value = theme;
+  changeTheme();
+}
+
+// 3. 背景パターン変更関数
+function changePattern() {
+  const patternSelect = document.getElementById('pattern-select').value;
+  const container = document.getElementById('preview-container');
+  container.classList.remove('pattern-dots', 'pattern-check', 'pattern-stripe', 'pattern-plain');
+  container.classList.add(patternSelect);
+}
+
+// 4. 自分のアイコン画像選択時処理
+function previewMyIcon(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      myIconSrc = e.target.result;
+      updateMyIcons();
+    }
+    reader.readAsDataURL(file);
+  }
+}
+
+// 自分のアイコン画像をすべて更新する関数
+function updateMyIcons() {
+  if (!myIconSrc) return;
+  const myIcons = document.querySelectorAll('.my-icon-container');
+  myIcons.forEach(icon => {
+    icon.innerHTML = "";
+    const img = document.createElement('img');
+    img.src = myIconSrc;
+    img.style.width = "40px";
+    img.style.height = "40px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "50%";
+    img.style.display = "block";
+    icon.appendChild(img);
+  });
+}
+
+// 5. 話者が「自分」の時はハート選択を非表示、「推し」の時は表示する処理
+function toggleHeartSelect() {
+  const speaker = document.getElementById('speaker-select').value;
+  const heartGroup = document.getElementById('oshi-heart-group');
+
+  if (speaker === "自分") {
+    heartGroup.classList.add('is-hidden');
+  } else {
+    heartGroup.classList.remove('is-hidden');
+  }
+}
+
+// 6. ページ読み込み時の初期化
+document.addEventListener('DOMContentLoaded', function(){
+  toggleHeartSelect();
+  changeTheme();
+  updateHeaderInfo();
+});
+
+// 会話ログ（吹き出し）追加関数
+function addMessage() {
+  const speakerSelect = document.getElementById('speaker-select');
+  const messageInput = document.getElementById('message-input');
+  const heartSelect = document.getElementById('heart-select');
+
+  const speaker = speakerSelect.value;
+  const text = messageInput.value.trim();
+
+  if (text === "") return;
+
+  const chatLogs = document.getElementById('chat-logs');
+
+  const row = document.createElement('div');
+  row.classList.add('chat-row');
+
+  const icon = document.createElement('div');
+  icon.classList.add('chat-icon');
+
+  const bubble = document.createElement('div');
+  bubble.classList.add('chat-bubble');
+  bubble.textContent = text;
+
+  bubble.onclick = function() {
+    const currentText = bubble.textContent;
+    const newText = prompt("セリフを編集してください:", currentText);
+    if (newText !== null && newText.trim() !== "") {
+      bubble.textContent = newText.trim();
+    }
+  };
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "×";
+  deleteBtn.classList.add('chat-delete-btn');
+  deleteBtn.onclick = function(e) {
+    e.stopPropagation();
+    chatLogs.removeChild(row);
+  };
+
+  if (speaker === "推し") {
+    row.classList.add('chat-row-oshi');
+    bubble.classList.add('chat-oshi');
+    icon.textContent = heartSelect.value;
+    
+    row.appendChild(icon);
+    row.appendChild(bubble);
+    row.appendChild(deleteBtn);
+  } else {
+    row.classList.add('chat-row-me');
+    bubble.classList.add('chat-me');
+    
+    icon.classList.add('my-icon-container');
+    
+    if (myIconSrc) {
+      icon.innerHTML = "";
+      const img = document.createElement('img');
+      img.src = myIconSrc;
+      img.style.width = "40px";
+      img.style.height = "40px";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "50%";
+      img.style.display = "block";
+      icon.appendChild(img);
+    } else {
+      icon.textContent = "";
+    }
+    
+    row.appendChild(deleteBtn);
+    row.appendChild(bubble);
+    row.appendChild(icon);
+  }
+
+  chatLogs.appendChild(row);
+  messageInput.value = "";
+  messageInput.focus();
+}
+
+// 動作メッセージ追加関数
+function addAction() {
+  const actionInput = document.getElementById('action-input');
+  const text = actionInput.value.trim();
+
+  if (text === "") return;
+
+  const chatLogs = document.getElementById('chat-logs');
+
+  const systemDiv = document.createElement('div');
+  systemDiv.classList.add('chat-system');
+
+  const innerSpan = document.createElement('span');
+  innerSpan.classList.add('chat-system-inner');
+  innerSpan.textContent = text;
+
+  innerSpan.onclick = function() {
+    const currentText = innerSpan.textContent;
+    const newText = prompt("動作・出来事を編集してください:", currentText);
+    if (newText !== null && newText.trim() !== "") {
+      innerSpan.textContent = newText.trim();
+    }
+  };
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "×";
+  deleteBtn.classList.add('chat-delete-btn');
+  deleteBtn.onclick = function(e) {
+    e.stopPropagation();
+    chatLogs.removeChild(systemDiv);
+  };
+
+  systemDiv.appendChild(innerSpan);
+  systemDiv.appendChild(deleteBtn);
+  chatLogs.appendChild(systemDiv);
+
+  actionInput.value = "";
+  actionInput.focus();
+}
+
+// MEMO欄反映
+function updateMemo() {
+  const memoVal = document.getElementById('memo').value;
+  document.getElementById('prev-memo-text').textContent = memoVal || '';
+}
+
+// 【最終決定版】CSSの干渉を受けずに、柄を100%確実に画像に焼き込む保存関数
+async function exportAndSaveRecord() {
+  const eventVal = document.getElementById('input-event').value || '';
+  const dateVal = document.getElementById('input-date').value || '';
+  const placeVal = document.getElementById('input-place').value || '';
+  const oshiVal = document.getElementById('input-oshi').value || '';
+  const themeVal = document.getElementById('theme-select').value;
+  const patternVal = document.getElementById('pattern-select').value;
+  const memoVal = document.getElementById('memo').value;
+  const chatLogsHtml = document.getElementById('chat-logs').innerHTML;
+
+  // 1. localStorageにアーカイブ保存
+  const recordData = {
+    id: Date.now(),
+    event: eventVal,
+    date: dateVal,
+    place: placeVal,
+    oshi: oshiVal,
+    theme: themeVal,
+    pattern: patternVal,
+    memo: memoVal,
+    chatLogs: chatLogsHtml,
+    myIcon: myIconSrc
+  };
+
+  let archives = JSON.parse(localStorage.getItem('repolog_archives')) || [];
+  archives.unshift(recordData);
+  localStorage.setItem('repolog_archives', JSON.stringify(archives));
+
+  // 2. プレビュー要素を取得
+  const container = document.getElementById('preview-container');
+  if (!container) return;
+
+  const wrapper = container.parentElement;
+
+  // 3. キャプチャ前の状態を保持（復元用）
+  const originalTransform = container.style.transform;
+  const originalWidth = container.style.width;
+  const originalHeight = wrapper ? wrapper.style.height : 'auto';
+  const originalBgImage = container.style.backgroundImage;
+  const originalBgSize = container.style.backgroundSize;
+  const originalBgPos = container.style.backgroundPosition;
+  const originalBgRepeat = container.style.backgroundRepeat;
+  const originalBorderRadius = container.style.borderRadius; // ★角丸の状態を保持
+
+  // 削除ボタンを一時的に非表示にする
+  const deleteBtns = container.querySelectorAll('.chat-delete-btn');
+  deleteBtns.forEach(btn => btn.style.display = 'none');
+
+  // 原寸大（480px）に戻す ＆ ★保存時は角丸を外して四角くする
+  container.style.transform = 'none';
+  container.style.width = '480px';
+  container.style.borderRadius = '0px'; // ★角を直角にする
+  if (wrapper) wrapper.style.height = 'auto';
+
+  // テーマカラーの色情報を取得
+  const colors = {
+    'theme-yellow': '#ffe44d',
+    'theme-gray': '#cccccc',
+    'theme-pink': '#f9b5de',
+    'theme-blue': '#87ceeb',
+    'theme-red': '#ff9999',
+    'theme-green': '#98fb98',
+    'theme-purple': '#dda0dd',
+    'theme-dark': '#555555'
+  };
+  const mainColor = colors[themeVal] || '#555555';
+
+  // 4. 柄の生成（ドット・チェック・ストライプに対応）
+  if (patternVal === 'pattern-dots' || patternVal === 'pattern-stripe' || patternVal === 'pattern-check') {
+    const patternCanvas = document.createElement('canvas');
+    const ctx = patternCanvas.getContext('2d');
+
+    if (patternVal === 'pattern-dots') {
+      patternCanvas.width = 20;
+      patternCanvas.height = 20;
+      ctx.fillStyle = mainColor;
+      const points = [{x:0, y:0}, {x:10, y:10}, {x:20, y:0}, {x:0, y:20}, {x:20, y:20}];
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      const patternDataUrl = patternCanvas.toDataURL('image/png');
+      container.style.setProperty('background-image', `url("${patternDataUrl}")`, 'important');
+      container.style.setProperty('background-size', '20px 20px', 'important');
+      container.style.setProperty('background-position', '0 0', 'important');
+      container.style.setProperty('background-repeat', 'repeat', 'important');
+
+} else if (patternVal === 'pattern-check') {
+      // ユーザー様が教えてくださったCSSのグラデーション構造と完全に一致させる処理
+      patternCanvas.width = 24;
+      patternCanvas.height = 24;
+      ctx.clearRect(0, 0, 24, 24);
+      
+      ctx.fillStyle = mainColor;
+      ctx.globalAlpha = 0.35; // CSSと同じ35%の透け感
+      
+      // 1つ目のグラデーション（横方向の半分：左側を塗る）
+      ctx.fillRect(0, 0, 12, 24);
+      
+      // 2つ目のグラデーション（縦方向の半分：上側を塗る）
+      // 重なった部分が濃くなるため、本物の可愛いギンガムチェックになります
+      ctx.fillRect(0, 0, 24, 12);
+
+      const patternDataUrl = patternCanvas.toDataURL('image/png');
+      container.style.setProperty('background-image', `url("${patternDataUrl}")`, 'important');
+      container.style.setProperty('background-size', '24px 24px', 'important');
+      container.style.setProperty('background-position', '0 0', 'important');
+      container.style.setProperty('background-repeat', 'repeat', 'important');
+
+    } else if (patternVal === 'pattern-stripe') {
+      // 綺麗に出力できたストライプ処理
+      const bgWidth = container.offsetWidth || 480;
+      const bgHeight = container.offsetHeight || 600;
+
+      patternCanvas.width = bgWidth;
+      patternCanvas.height = bgHeight;
+      ctx.clearRect(0, 0, bgWidth, bgHeight);
+
+      ctx.strokeStyle = mainColor;
+      ctx.lineWidth = 12;
+      ctx.globalAlpha = 0.35;
+      ctx.lineCap = 'butt';
+
+      const stripeInterval = 28;
+      for (let c = -bgHeight; c < bgWidth + bgHeight; c += stripeInterval) {
+        ctx.beginPath();
+        ctx.moveTo(c + bgHeight, -bgHeight);
+        ctx.lineTo(c - bgHeight, bgHeight * 2);
+        ctx.stroke();
+      }
+
+      const patternDataUrl = patternCanvas.toDataURL('image/png');
+      container.style.setProperty('background-image', `url("${patternDataUrl}")`, 'important');
+      container.style.setProperty('background-size', '100% 100%', 'important');
+      container.style.setProperty('background-position', '0 0', 'important');
+      container.style.setProperty('background-repeat', 'no-repeat', 'important');
+    }
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 150));
+
+  try {
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    });
+
+    // 5. 状態の復元
+    container.style.transform = originalTransform;
+    container.style.width = originalWidth;
+    container.style.borderRadius = originalBorderRadius; // ★角丸を元に戻す
+    if (wrapper) wrapper.style.height = originalHeight;
+    container.style.backgroundImage = originalBgImage;
+    container.style.backgroundSize = originalBgSize;
+    container.style.backgroundPosition = originalBgPos;
+    container.style.backgroundRepeat = originalBgRepeat;
+    deleteBtns.forEach(btn => btn.style.display = '');
+
+    const imageUrl = canvas.toDataURL('image/png');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      const existingModal = document.getElementById('save-modal');
+      if (existingModal) existingModal.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'save-modal';
+      modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; z-index: 99999; padding: 16px; box-sizing: border-box; backdrop-filter: blur(8px);
+      `;
+      modal.innerHTML = `
+        <div style="background: rgba(255, 255, 255, 0.12); padding: 20px; border-radius: 20px; text-align: center; max-width: 90%; width: 340px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <p style="color: #fff; font-size: 0.85rem; margin-bottom: 12px; font-weight: bold;">画像を長押しして保存してください ✦</p>
+          <img src="${imageUrl}" style="width: 100%; height: auto; border-radius: 0px; display: block; margin-bottom: 16px;" />
+          <button id="close-modal-btn" style="background: #e08bb2; border: none; color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">過去のレポ（アーカイブ）へ</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.getElementById('close-modal-btn').addEventListener('click', () => {
+        modal.remove();
+        window.location.href = "archive.html";
+      });
+    } else {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = 'repolog_report.png';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => {
+        alert("レポを保存しました！過去のレポに移動します。");
+        window.location.href = "archive.html";
+      }, 300);
+    }
+
+  } catch (err) {
+    container.style.transform = originalTransform;
+    container.style.width = originalWidth;
+    container.style.borderRadius = originalBorderRadius; // ★エラー時も元に戻す
+    if (wrapper) wrapper.style.height = originalHeight;
+    container.style.backgroundImage = originalBgImage;
+    container.style.backgroundSize = originalBgSize;
+    container.style.backgroundPosition = originalBgPos;
+    container.style.backgroundRepeat = originalBgRepeat;
+    deleteBtns.forEach(btn => btn.style.display = '');
+
+    console.error('画像出力エラー:', err);
+    alert('画像生成エラー: ' + err.message);
+    window.location.href = "archive.html";
+  }
+}
+
+</script>
+
+</body>
+</html>

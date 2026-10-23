@@ -1,0 +1,231 @@
+@charset "UTF-8";
+
+/* ==========================================
+   全体の設定（カラー・リセット）
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #ffffff;
+  color: #222222;
+  line-height: 1.6;
+  padding: 40px 20px 80px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   1. ヘッダー領域（ロゴ + 英文3行）
+   ========================================== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+/* ロゴ画像エリア */
+.logo-area .logo-img {
+  max-width: 120px;
+  height: auto;
+  display: block;
+}
+
+/* 英文テキストエリア */
+.header-text {
+  font-size: 10px;
+  color: #666666;
+  letter-spacing: 0.03em;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.header-text p {
+  margin: 0;
+}
+
+
+/* ==========================================
+   2. メイン領域（ジグザグ・左右反転の配置）
+   ========================================== */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+/* ------------------------------------------
+   ★ 左寄りの星（星 ➔ テキスト）
+   ------------------------------------------ */
+.offset-left {
+  justify-content: flex-start; /* 左寄せ */
+  text-align: left; /* テキスト左揃え */
+}
+
+/* ------------------------------------------
+   ★ 右寄りの星（テキスト ➔ 星）
+   ------------------------------------------ */
+.offset-right {
+  flex-direction: row-reverse; /* 並び順を右から左へ反転！ */
+  justify-content: flex-start; /* 右端側に寄せる */
+  text-align: right; /* テキスト右揃えにするとより自然で可愛いです */
+  margin-left: auto; /* 全体を右寄りに配置 */
+}
+
+/* ==========================================
+   3. 星型ボタンのデザイン（SVG + 中央ロゴ）
+   ========================================== */
+.star-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 360px;
+  height: 360px;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+/* ホバー時の設定：右下に綺麗な影をつける */
+.star-btn:hover {
+  transform: scale(1.03);
+  /* 右下に落ちるほんのりピンク×黒の影 (X軸 3px, Y軸 5px, ぼかし 6px) */
+  filter: drop-shadow(3px 5px 6px rgba(0, 0, 0, 0.35)) drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.08));
+}
+
+/* 背景の星SVG */
+.star-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.star-svg polygon {
+  fill: #ffffff; /* 通常時は白塗り */
+  stroke: #111111; /* ロゴに合わせた細めの黒縁 */
+  stroke-width: 0.5px;
+  stroke-linejoin: round;
+  transition: fill 0.25s ease;
+}
+
+/* 星の中に配置するロゴ画像 */
+.star-logo {
+  position: relative;
+  z-index: 2; /* 星の上に重ねる */
+  max-width: 50%;
+  max-height: 50%;
+  object-fit: contain;
+}
+
+
+/* ==========================================
+   右側の説明テキスト（星の下に下線を行かせない設定）
+   ========================================== */
+.item-desc h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111111;
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* h2自体には下線をつけません */
+}
+
+/* 小さい星（★）の設定 */
+.item-desc h2::before {
+  content: "★";
+  font-size: 13px;
+  color: #fbcfe8; /* 中は淡いピンク */
+  -webkit-text-stroke: 1px #111111; /* 黒の縁取り */
+  display: inline-block;
+}
+
+/* テキスト部分だけに下線をひく設定 */
+/* HTML側で <h2>☆ <span>RPLG(レポログ)</span></h2> のようにspanで囲むか、下記のように文字だけに適用 */
+.item-desc h2 span {
+  border-bottom: 1.8px solid #111111; /* 文字の幅だけに下線 */
+  padding-bottom: 0px;
+}
+
+
+/* ==========================================
+   5. スマホ表示時の調整（スマホでもジグザグを維持）
+   ========================================== */
+@media (max-width: 600px) {
+  body {
+    padding: 20px 12px 60px; /* 余白を少し詰めて画面を広く使う */
+  }
+
+  /* ヘッダーの調整 */
+  .header {
+    flex-direction: row; /* スマホでもロゴと英文を横並び維持 */
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .logo-area .logo-img {
+    max-width: 100px; /* スマホ用にロゴを少しコンパクトに */
+  }
+
+  .header-text {
+    font-size: 10.5px; /* 英文のフォントサイズ調整 */
+    line-height: 1.4;
+  }
+
+  /* メインエリアの隙間 */
+  .container {
+    gap: 32px;
+  }
+
+  .item-row {
+    gap: 10px; /* 星とテキストの間の隙間をギュッと詰める */
+  }
+
+  /* 星ボタンのサイズ（スマホ用に小さくして収める） */
+  .star-btn {
+    width: 240px;
+    height: 240px;
+  }
+
+  /* ★ 左寄りの星（スマホ） */
+  .offset-left {
+    padding-right: 15px; /* 右側に少しゆとりを作る */
+  }
+
+  /* ★ 右寄りの星（スマホでも左右反転＆右寄せを維持！） */
+  .offset-right {
+    flex-direction: row-reverse; /* 「テキスト ➔ 星」の順を維持 */
+    text-align: right;          /* 右揃えを維持 */
+    padding-left: 15px;         /* 左側に少しゆとりを作る */
+  }
+
+  /* 説明テキストの文字サイズ調整 */
+  .item-desc h2 {
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+
+  .item-desc p {
+    font-size: 10.5px;
+    line-height: 1.5;
+  }
+}

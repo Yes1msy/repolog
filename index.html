@@ -1,70 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="author" content="_Yes1msy">
-<meta name="description" content="接触イベントのレポをまとめる">
-<title>repolog</title>
-<link href="style.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B3T</title>
+  <link rel="stylesheet" href="index-style.css">
 </head>
 <body>
 
-<!-- 1. ヘッダー&ナビゲーション（共通） -->
-<header>
-<h1>非日常的接触空間における言動の再現と検証</h1>
+<header class="header">
+  <!-- ロゴエリア -->
+  <div class="logo-area">
+    <img src="images/B3T-logo-1.png" alt="B3T" class="logo-img">
+  </div>
+
+  <!-- 3行の英文 -->
+  <div class="header-text">
+    <p>Don't miss a single moment.</p>
+    <p>Capture your precious memories here.</p>
+    <p>blink 3 times.</p>
+  </div>
 </header>
-<div class="content">
-<nav>
-<ul>
-<li><a href="index.html">序論/TOP</a></li>
-<li><a href="record.html">実験結果/NEW RECORD</a></li>
-<li><a href="archive.html">先行研究/ARCHIVE</a></li>
-</ul>
-</nav>
 
-<!-- 2. メインコンテンツエリア -->
-<main>
-<section>
-<h2>序論/TOP</h2>
+<!-- メインコンテンツ（星型ボタン ＋ 説明文） -->
+  <main class="container">
 
-<!-- 概要 -->
-<p>接触イベントのレポをまとめます。<br>
-画像として出力することで、友人に共有することもできます。</p>
-</section>
+    <!-- 1つ目の星：ABOUT -->
+    <section class="item-row offset-left">
+      <a href="about.html" class="star-btn">
+<!-- 各 section 内の星SVG部分 -->
+<svg viewBox="0 0 100 100" class="star-svg">
+  <!-- 角丸と綺麗な形を両立したポッド型の星 -->
+  <polygon points="50,8 63,35 93,38 71,58 78,87 50,71 22,87 29,58 7,38 37,35" />
+</svg>
+        <img src="images/B3T-logo-2.png" alt="ABOUT" class="star-logo">
+      </a>
 
-<!-- ボタン -->
-<section>
-<div class="button-group">
-<div>
-<a href="record.html">
-<button type="button" class="btn-primary">新たにレポを記録する<br>
-NEW RECORD</button>
-</a>
-</div>
-<div>
-<a href="archive.html">
-<button type="button">過去のレポを閲覧する/ARCHIVE</button>
-</a>
-</div>
-<br>
-</section>
+      <div class="item-desc">
+        <h2><span>ABOUT</span></h2>
+        <p>「まばたきは3回まで。」（B3T）について。<br>サイトのコンセプトや、作者についての紹介。</p>
+      </div>
+    </section>
 
-<!-- 他ツールを並べる場所 -->
-<section>
-<h3>【観測支援ツール】</h3>
-<div class="recomend">
-<ul>
-<li>準備中/Coming soon…</li>
-<li>準備中/Coming soon…</li>
-</ul>
-</div>
-</section>
+    <!-- 2つ目の星：RPLG（レポログ） -->
+    <section class="item-row offset-right">
+      <a href="record.html" class="star-btn">
+<!-- 各 section 内の星SVG部分 -->
+<svg viewBox="0 0 100 100" class="star-svg">
+  <!-- 角丸と綺麗な形を両立したポッド型の星 -->
+  <polygon points="50,8 63,35 93,38 71,58 78,87 50,71 22,87 29,58 7,38 37,35" />
+</svg>
+        <img src="images/RPLG-logo.png" alt="RPLG" class="star-logo">
+      </a>
 
-</main>
-</div>
-<footer>
-<p>@_Yes1msy</p>
-</footer>
+      <div class="item-desc">
+        <h2><span>RPLG（レポログ）</span></h2>
+        <p>接触イベントの記録を残せるサイト。<br>画像として保存ができるため、<br>推しとの会話を友達に共有することも。</p>
+      </div>
+    </section>
+
+  </main>
+
 </body>
 </html>
