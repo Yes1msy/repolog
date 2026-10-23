@@ -290,6 +290,34 @@ letter-spacing:0.5px;
 }
 
 /* ==========================================
+   アーカイブ用：等比縮小レイアウト
+   ========================================== */
+
+/* アーカイブ用：プレビューの親枠 */
+.preview-scaler-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  margin: 0 auto 30px auto !important;
+}
+
+/* アーカイブカード本体（幅480px固定・比率維持） */
+.archive-card,
+.preview-card-item {
+  width: 480px !important;
+  min-width: 480px !important;
+  max-width: 480px !important;
+  transform-origin: top center !important;
+  box-sizing: border-box !important;
+  border-radius: 12px;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* ==========================================
    イベント情報エリア（端まで白・横並び）
    ========================================== */
 .preview-header-info {
