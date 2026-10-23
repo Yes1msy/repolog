@@ -698,28 +698,33 @@ const file = new File([blob], 'repolog_experiment.png', {
   type: 'image/png'
 });
 
-// モバイル端末（スマホ・タブレット）かどうかを判定
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// 画像のURL（Data URL）を生成
+  const imageUrl = canvas.toDataURL('image/png');
 
-// スマホ端末 且つ ファイル共有に対応している場合のみ「共有シート」を開く
-if (
-  isMobile &&
-  navigator.share &&
-  navigator.canShare &&
-  navigator.canShare({ files: [file] })
-) {
-  try {
-    await navigator.share({
-      files: [file],
-      title: 'repolog_experiment'
-    });
-  } catch (shareError) {
-    if (shareError.name === 'AbortError') {
-      return;
+// モバイル端末判定
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // スマホの場合は、新しいタブで画像を開く（長押しで保存してもらうため）
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`
+        <html>
+          <head><title>レポ画像保存</title></head>
+          <body style="margin:0; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; color:#fff; font-family:sans-serif;">
+            <p style="margin-bottom:12px; font-size:14px;">画像を長押しして「写真に追加」または「画像を保存」してください✦</p>
+            <img src="${imageUrl}" style="max-width:90%; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.5);" />
+          </body>
+        </html>
+      `);
+    } else {
+      // ポップアップブロックされた場合のフォールバック
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = 'repolog_experiment.png';
+      link.click();
     }
-    throw shareError;
-  }
-} else {
+  } else {
   // PC（または共有非対応環境）では直接ファイルをダウンロード
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
