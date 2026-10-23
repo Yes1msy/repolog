@@ -473,7 +473,7 @@ function updateMemo() {
   document.getElementById('prev-memo-text').textContent = memoVal || '';
 }
 
-// レポデータをlocalStorageに保存して画像を生成する関数（柄・スマホ完全対応版）
+// レポデータをlocalStorageに保存して画像を生成する関数（エラー原因修正版）
 async function exportAndSaveRecord() {
   const eventVal = document.getElementById('input-event').value || '';
   const dateVal = document.getElementById('input-date').value || '';
@@ -526,7 +526,7 @@ async function exportAndSaveRecord() {
   container.style.width = '480px';
   if (wrapper) wrapper.style.height = 'auto';
 
-  // 【重要】html2canvasが背景柄を確実に認識できるよう、テーマに応じたSVG背景をインラインで直接適用
+  // テーマに応じたSVG背景をインラインで適用
   const colors = {
     'theme-yellow': '#ffe44d',
     'theme-gray': '#cccccc',
@@ -557,11 +557,10 @@ async function exportAndSaveRecord() {
   await new Promise(resolve => setTimeout(resolve, 100));
 
   try {
-    // 4. html2canvasで高画質キャプチャ
+    // 4. html2canvasで高画質キャプチャ（※ allowTaint を削除してクラッシュを防止）
     const canvas = await html2canvas(container, {
       scale: 2,
       useCORS: true,
-      allowTaint: true,
       backgroundColor: null,
       logging: false
     });
@@ -642,11 +641,11 @@ async function exportAndSaveRecord() {
     deleteBtns.forEach(btn => btn.style.display = '');
 
     console.error('画像出力エラー:', err);
-    alert('画像の生成に失敗しました。データをアーカイブに記録して移動します。');
+    // 何が起きたか特定しやすくするためにエラー内容をアラートに出す
+    alert('画像生成エラー: ' + err.message);
     window.location.href = "archive.html";
   }
 }
-
 </script>
 
 </body>
