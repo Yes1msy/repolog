@@ -56,7 +56,7 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: 26px;
 }
 
 .item-row {
@@ -193,7 +193,7 @@ body {
 
   /* メインエリアの隙間 */
   .container {
-    gap: 32px;
+    gap: 16px;
   }
 
   .item-row {
