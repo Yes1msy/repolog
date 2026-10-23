@@ -457,19 +457,34 @@ border-bottom-left-radius:22px !important;
 /* ==========================================
    背景パターン（柄のベース指定）
    ========================================== */
+/* ドット柄（斜め） */
 .pattern-dots {
+  background-image: 
+    radial-gradient(var(--pattern-color, #555555) 2.2px, transparent 2.5px),
+    radial-gradient(var(--pattern-color, #555555) 2.2px, transparent 2.5px) !important;
   background-size: 20px 20px !important;
   background-position: 0 0, 10px 10px !important;
 }
 
+/* ギンガムチェック柄 */
 .pattern-check {
+  background-image: 
+    linear-gradient(90deg, color-mix(in srgb, var(--pattern-color, #555555) 35%, transparent) 50%, transparent 50%), 
+    linear-gradient(0deg, color-mix(in srgb, var(--pattern-color, #555555) 35%, transparent) 50%, transparent 50%) !important;
   background-size: 24px 24px !important;
-  background-position: 0 0, 12px 12px !important;
+  background-position: 0 0, 0 0 !important;
 }
 
+/* ストライプ柄 */
 .pattern-stripe {
-  background-size: 28px 28px !important;
-  background-position: 0 0 !important;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--pattern-color, #555555) 35%, transparent),
+    color-mix(in srgb, var(--pattern-color, #555555) 35%, transparent) 10px,
+    transparent 10px,
+    transparent 18px
+  ) !important;
+  background-size: 26px 26px !important;
 }
 
 .pattern-plain {
@@ -481,64 +496,40 @@ border-bottom-left-radius:22px !important;
    ========================================== */
 
 /* 1. 黄 */
-.theme-yellow { background-color: #fffef0; border-color: #fff2b2; }
+.theme-yellow { background-color: #fffef0; border-color: #fff2b2; --pattern-color: #ffe44d; }
 .theme-yellow .chat-oshi { background-color: #f2cc42 !important; color: #ffffff !important; }
-.theme-yellow.pattern-dots { background-image: radial-gradient(#ffe44d 2px, transparent 2.5px), radial-gradient(#ffe44d 2px, transparent 2.5px); }
-.theme-yellow.pattern-check { background-image: linear-gradient(90deg, rgba(255, 228, 77, 0.4) 50%, transparent 50%), linear-gradient(rgba(255, 228, 77, 0.4) 50%, transparent 50%); }
-.theme-yellow.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(255, 228, 77, 0.3), rgba(255, 228, 77, 0.3) 10px, transparent 10px, transparent 20px); }
 
-/* 2. 白 */
-.theme-gray { background-color: #f5f5f5; border-color: #dddddd; }
+/* 2. 白・グレー */
+.theme-gray { background-color: #f5f5f5; border-color: #dddddd; --pattern-color: #cccccc; }
 .theme-gray .chat-oshi { background-color: #a8a8a8 !important; color: #ffffff !important; }
-.theme-gray.pattern-dots { background-image: radial-gradient(#cccccc 2px, transparent 2.5px), radial-gradient(#cccccc 2px, transparent 2.5px); }
-.theme-gray.pattern-check { background-image: linear-gradient(90deg, rgba(204, 204, 204, 0.4) 50%, transparent 50%), linear-gradient(rgba(204, 204, 204, 0.4) 50%, transparent 50%); }
-.theme-gray.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(204, 204, 204, 0.3), rgba(204, 204, 204, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 3. ピンク */
-.theme-pink { background-color: #fff0f9; border-color: #f9b5de; }
+.theme-pink { background-color: #fff0f9; border-color: #f9b5de; --pattern-color: #f9b5de; }
 .theme-pink .chat-oshi { background-color: #f9b5de !important; color: #ffffff !important; }
-.theme-pink.pattern-dots { background-image: radial-gradient(#f9b5de 2px, transparent 2.5px), radial-gradient(#f9b5de 2px, transparent 2.5px); }
-.theme-pink.pattern-check { background-image: linear-gradient(90deg, rgba(249, 181, 222, 0.4) 50%, transparent 50%), linear-gradient(rgba(249, 181, 222, 0.4) 50%, transparent 50%); }
-.theme-pink.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(249, 181, 222, 0.3), rgba(249, 181, 222, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 4. 青 */
-.theme-blue { background-color: #f0f8ff; border-color: #b0e0e6; }
+.theme-blue { background-color: #f0f8ff; border-color: #b0e0e6; --pattern-color: #87ceeb; }
 .theme-blue .chat-oshi { background-color: #79bdf2 !important; color: #ffffff !important; }
-.theme-blue.pattern-dots { background-image: radial-gradient(#87ceeb 2px, transparent 2.5px), radial-gradient(#87ceeb 2px, transparent 2.5px); }
-.theme-blue.pattern-check { background-image: linear-gradient(90deg, rgba(135, 206, 235, 0.4) 50%, transparent 50%), linear-gradient(rgba(135, 206, 235, 0.4) 50%, transparent 50%); }
-.theme-blue.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(135, 206, 235, 0.3), rgba(135, 206, 235, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 5. 赤 */
-.theme-red { background-color: #fff5f5; border-color: #ffcccc; }
+.theme-red { background-color: #fff5f5; border-color: #ffcccc; --pattern-color: #ff9999; }
 .theme-red .chat-oshi { background-color: #ff8080 !important; color: #ffffff !important; }
-.theme-red.pattern-dots { background-image: radial-gradient(#ff9999 2px, transparent 2.5px), radial-gradient(#ff9999 2px, transparent 2.5px); }
-.theme-red.pattern-check { background-image: linear-gradient(90deg, rgba(255, 153, 153, 0.4) 50%, transparent 50%), linear-gradient(rgba(255, 153, 153, 0.4) 50%, transparent 50%); }
-.theme-red.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(255, 153, 153, 0.3), rgba(255, 153, 153, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 6. 緑 */
-.theme-green { background-color: #f0fff0; border-color: #c1ffc1; }
+.theme-green { background-color: #f0fff0; border-color: #c1ffc1; --pattern-color: #98fb98; }
 .theme-green .chat-oshi { background-color: #7ddc7d !important; color: #ffffff !important; }
-.theme-green.pattern-dots { background-image: radial-gradient(#98fb98 15%, transparent 2px), radial-gradient(#98fb98 15%, transparent 2.5px); }
-.theme-green.pattern-check { background-image: linear-gradient(90deg, rgba(152, 251, 152, 0.4) 50%, transparent 50%), linear-gradient(rgba(152, 251, 152, 0.4) 50%, transparent 50%); }
-.theme-green.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(152, 251, 152, 0.3), rgba(152, 251, 152, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 7. 紫 */
-.theme-purple { background-color: #f8f0ff; border-color: #e6c8e6; }
+.theme-purple { background-color: #f8f0ff; border-color: #e6c8e6; --pattern-color: #dda0dd; }
 .theme-purple .chat-oshi { background-color: #c48fe3 !important; color: #ffffff !important; }
-.theme-purple.pattern-dots { background-image: radial-gradient(#dda0dd 2px, transparent 2.5px), radial-gradient(#dda0dd 2px, transparent 2.5px); }
-.theme-purple.pattern-check { background-image: linear-gradient(90deg, rgba(221, 160, 221, 0.4) 50%, transparent 50%), linear-gradient(rgba(221, 160, 221, 0.4) 50%, transparent 50%); }
-.theme-purple.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(221, 160, 221, 0.3), rgba(221, 160, 221, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* 8. 黒 */
-.theme-dark { background-color: #2a2a2a; border-color: #444444; color: #ffffff !important; }
+.theme-dark { background-color: #2a2a2a; border-color: #444444; color: #ffffff !important; --pattern-color: #555555; }
 .theme-dark .preview-header-info { background-color: #333333 !important; color: #ffffff !important; border-bottom: 1px solid #444444 !important; }
 .theme-dark .preview-header-info span { color: #ffffff !important; }
 .theme-dark .preview-memo-box { background-color: rgba(50, 50, 50, 0.9) !important; color: #ffffff !important; }
 .theme-dark .preview-memo-title { color: #aaaaaa !important; }
 .theme-dark .chat-oshi { background-color: #666666 !important; color: #ffffff !important; }
-.theme-dark.pattern-dots { background-image: radial-gradient(#555555 2px, transparent 2.5px), radial-gradient(#555555 2px, transparent 2.5px); }
-.theme-dark.pattern-check { background-image: linear-gradient(90deg, rgba(85, 85, 85, 0.4) 50%, transparent 50%), linear-gradient(rgba(85, 85, 85, 0.4) 50%, transparent 50%); }
-.theme-dark.pattern-stripe { background-image: repeating-linear-gradient(45deg, rgba(85, 85, 85, 0.3), rgba(85, 85, 85, 0.3) 10px, transparent 10px, transparent 20px); }
 
 /* ==========================================
    プレビュー行の削除・編集用スタイル
