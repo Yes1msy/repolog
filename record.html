@@ -473,7 +473,8 @@ function updateMemo() {
   document.getElementById('prev-memo-text').textContent = memoVal || '';
 }
 
-// レポデータをlocalStorageに保存して画像を生成する関数（エラー原因修正版）
+// レポデータをlocalStorageに保存して画像を生成する関数（完全安全・Vercel対応版）
+// レポデータをlocalStorageに保存して画像を生成する関数（柄復活・完全版）
 async function exportAndSaveRecord() {
   const eventVal = document.getElementById('input-event').value || '';
   const dateVal = document.getElementById('input-date').value || '';
@@ -526,7 +527,7 @@ async function exportAndSaveRecord() {
   container.style.width = '480px';
   if (wrapper) wrapper.style.height = 'auto';
 
-  // テーマに応じたSVG背景をインラインで適用
+  // 【重要】テーマカラーに応じたSVG背景をインラインで明示的に適用してドット柄を復活させる
   const colors = {
     'theme-yellow': '#ffe44d',
     'theme-gray': '#cccccc',
@@ -551,13 +552,33 @@ async function exportAndSaveRecord() {
     container.style.backgroundSize = '28px 28px';
     container.style.backgroundPosition = '0 0';
     container.style.backgroundRepeat = 'repeat';
+  } else {
+    container.style.backgroundImage = 'none';
   }
 
+  // アイコン画像がセキュリティエラー（Tainted Canvas）を引き起こさないよう、一時的に安全なCanvas描画に変換
+  const myIconImgs = container.querySelectorAll('.my-icon-container img');
+  const restoredIcons = [];
+  myIconImgs.forEach(img => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || 40;
+      canvas.height = img.naturalHeight || 40;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const safeDataUrl = canvas.toDataURL('image/png');
+      restoredIcons.push({ imgElement: img, originalSrc: img.src });
+      img.src = safeDataUrl; // 安全なデータURLに差し替え
+    } catch (e) {
+      console.warn('アイコンの安全化スキップ:', e);
+    }
+  });
+
   // 描画の反映を少し待つ
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 150));
 
   try {
-    // 4. html2canvasで高画質キャプチャ（※ allowTaint を削除してクラッシュを防止）
+    // 4. html2canvasで高画質キャプチャ
     const canvas = await html2canvas(container, {
       scale: 2,
       useCORS: true,
@@ -565,7 +586,7 @@ async function exportAndSaveRecord() {
       logging: false
     });
 
-    // 5. キャプチャ完了後、すぐに元の画面表示に戻す
+    // 5. キャプチャ完了後、すぐに元の画面表示・背景・アイコンに戻す
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
     if (wrapper) wrapper.style.height = originalHeight;
@@ -574,6 +595,10 @@ async function exportAndSaveRecord() {
     container.style.backgroundPosition = originalBgPos;
     container.style.backgroundRepeat = originalBgRepeat;
     deleteBtns.forEach(btn => btn.style.display = '');
+
+    restoredIcons.forEach(item => {
+      item.imgElement.src = item.originalSrc;
+    });
 
     const imageUrl = canvas.toDataURL('image/png');
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -630,7 +655,7 @@ async function exportAndSaveRecord() {
     }
 
   } catch (err) {
-    // エラーが起きても表示を元に戻す
+    // エラーが起きても表示やアイコンを必ず元に戻す
     container.style.transform = originalTransform;
     container.style.width = originalWidth;
     if (wrapper) wrapper.style.height = originalHeight;
@@ -640,12 +665,16 @@ async function exportAndSaveRecord() {
     container.style.backgroundRepeat = originalBgRepeat;
     deleteBtns.forEach(btn => btn.style.display = '');
 
+    restoredIcons.forEach(item => {
+      item.imgElement.src = item.originalSrc;
+    });
+
     console.error('画像出力エラー:', err);
-    // 何が起きたか特定しやすくするためにエラー内容をアラートに出す
     alert('画像生成エラー: ' + err.message);
     window.location.href = "archive.html";
   }
 }
+
 </script>
 
 </body>
