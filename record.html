@@ -209,6 +209,16 @@
 </footer>
 
 <script>
+// 【重要】未定義エラーを防ぐため、アイコン用変数をここで宣言します
+let myIconSrc = "";
+
+// ヘッダー情報（Event, Date, Place, Oshi）のリアルタイム反映
+function updateHeaderInfo() {
+  document.getElementById('prev-event').textContent = document.getElementById('input-event').value;
+  document.getElementById('prev-date').textContent = document.getElementById('input-date').value;
+  document.getElementById('prev-place').textContent = document.getElementById('input-place').value;
+  document.getElementById('prev-oshi').textContent = document.getElementById('input-oshi').value;
+}
 
 // 画面幅に合わせてプレビューを等比縮小する関数
 function updatePreviewScale() {
@@ -217,24 +227,15 @@ function updatePreviewScale() {
   if (!container || !wrapper) return;
 
   const baseWidth = 480; // プレビューの基準幅
-  const screenWidth = wrapper.clientWidth; // 親枠の幅（余白を引かず、めいっぱい活用）
+  const screenWidth = wrapper.clientWidth; // 親枠の幅
 
   if (screenWidth < baseWidth) {
-    // 画面が420pxより狭い場合：縦横一緒に等比縮小
     const scale = screenWidth / baseWidth;
-    
-    // 1. 一度transformをリセットして本来の高さを正確に取得
     container.style.transform = 'none';
     const originalHeight = container.offsetHeight;
-    
-    // 2. 縦横共通の縮小スケールを適用
     container.style.transform = `scale(${scale})`;
-    
-    // 3. 親ラッパーの高さを縮小後の高さにピタリと合わせる（下の隙間を防ぐ）
     wrapper.style.height = `${originalHeight * scale}px`;
-    
   } else {
-    // 広い画面の場合：原寸大（420px）
     container.style.transform = 'none';
     wrapper.style.height = 'auto';
   }
@@ -244,34 +245,25 @@ function updatePreviewScale() {
 window.addEventListener('resize', updatePreviewScale);
 window.addEventListener('DOMContentLoaded', updatePreviewScale);
 
-// 入力内容が変わって高さや文字数が増減した時にも自動で再計算
 document.querySelectorAll('input, textarea, select').forEach(el => {
   el.addEventListener('input', updatePreviewScale);
   el.addEventListener('change', updatePreviewScale);
 });
 
-// 読み込み直後にも実行
 setTimeout(updatePreviewScale, 100);
 
-  // 2. テーマカラー変更関数
+// 2. テーマカラー変更関数
 function changeTheme() {
   const themeSelect = document.getElementById('theme-select');
   const theme = themeSelect.value;
   const container = document.getElementById('preview-container');
 
   container.classList.remove(
-    'theme-dark',
-    'theme-yellow',
-    'theme-gray',
-    'theme-pink',
-    'theme-blue',
-    'theme-red',
-    'theme-green',
-    'theme-purple'
+    'theme-dark', 'theme-yellow', 'theme-gray', 'theme-pink',
+    'theme-blue', 'theme-red', 'theme-green', 'theme-purple'
   );
   container.classList.add(theme);
 
-  // 選択中の色ボタンを更新
   document.querySelectorAll('.theme-color-btn').forEach(btn => {
     const selected = btn.dataset.theme === theme;
     btn.classList.toggle('is-selected', selected);
@@ -299,39 +291,119 @@ function selectTheme(theme) {
   changeTheme();
 }
 
-  // 3. 背景パターン変更関数
-  function changePattern() {
-    const patternSelect = document.getElementById('pattern-select').value;
-    const container = document.getElementById('preview-container');
-    
-    // 既存のパターンクラスを削除
-    container.classList.remove('pattern-dots', 'pattern-check', 'pattern-stripe', 'pattern-plain');
-    container.classList.add(patternSelect);
-  }
+// 3. 背景パターン変更関数
+function changePattern() {
+  const patternSelect = document.getElementById('pattern-select').value;
+  const container = document.getElementById('preview-container');
+  container.classList.remove('pattern-dots', 'pattern-check', 'pattern-stripe', 'pattern-plain');
+  container.classList.add(patternSelect);
+}
 
-  // 4. 自分のアイコン画像選択時処理
-  function previewMyIcon(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        myIconSrc = e.target.result;
-        updateMyIcons();
-      }
-      reader.readAsDataURL(file);
+// 4. 自分のアイコン画像選択時処理
+function previewMyIcon(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      myIconSrc = e.target.result;
+      updateMyIcons();
     }
+    reader.readAsDataURL(file);
   }
+}
 
 // 自分のアイコン画像をすべて更新する関数
-  function updateMyIcons() {
-    if (!myIconSrc) return;
+function updateMyIcons() {
+  if (!myIconSrc) return;
+  const myIcons = document.querySelectorAll('.my-icon-container');
+  myIcons.forEach(icon => {
+    icon.innerHTML = "";
+    const img = document.createElement('img');
+    img.src = myIconSrc;
+    img.style.width = "40px";
+    img.style.height = "40px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "50%";
+    img.style.display = "block";
+    icon.appendChild(img);
+  });
+}
+
+// 5. 話者が「自分」の時はハート選択を非表示、「推し」の時は表示する処理
+function toggleHeartSelect() {
+  const speaker = document.getElementById('speaker-select').value;
+  const heartGroup = document.getElementById('oshi-heart-group');
+
+  if (speaker === "自分") {
+    heartGroup.classList.add('is-hidden');
+  } else {
+    heartGroup.classList.remove('is-hidden');
+  }
+}
+
+// 6. ページ読み込み時の初期化
+document.addEventListener('DOMContentLoaded', function(){
+  toggleHeartSelect();
+  changeTheme();
+  updateHeaderInfo();
+});
+
+// 会話ログ（吹き出し）追加関数
+function addMessage() {
+  const speakerSelect = document.getElementById('speaker-select');
+  const messageInput = document.getElementById('message-input');
+  const heartSelect = document.getElementById('heart-select');
+
+  const speaker = speakerSelect.value;
+  const text = messageInput.value.trim();
+
+  if (text === "") return;
+
+  const chatLogs = document.getElementById('chat-logs');
+
+  const row = document.createElement('div');
+  row.classList.add('chat-row');
+
+  const icon = document.createElement('div');
+  icon.classList.add('chat-icon');
+
+  const bubble = document.createElement('div');
+  bubble.classList.add('chat-bubble');
+  bubble.textContent = text;
+
+  bubble.onclick = function() {
+    const currentText = bubble.textContent;
+    const newText = prompt("セリフを編集してください:", currentText);
+    if (newText !== null && newText.trim() !== "") {
+      bubble.textContent = newText.trim();
+    }
+  };
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "×";
+  deleteBtn.classList.add('chat-delete-btn');
+  deleteBtn.onclick = function(e) {
+    e.stopPropagation();
+    chatLogs.removeChild(row);
+  };
+
+  if (speaker === "推し") {
+    row.classList.add('chat-row-oshi');
+    bubble.classList.add('chat-oshi');
+    icon.textContent = heartSelect.value;
     
-    // プレビュー内にあるすべての自分のアイコンコンテナを探す
-    const myIcons = document.querySelectorAll('.my-icon-container');
-    myIcons.forEach(icon => {
-      // 中身を一度空にしてから、安全にimg要素を作成して挿入する
+    row.appendChild(icon);
+    row.appendChild(bubble);
+    row.appendChild(deleteBtn);
+  } else {
+    row.classList.add('chat-row-me');
+    bubble.classList.add('chat-me');
+    
+    icon.classList.add('my-icon-container');
+    
+    if (myIconSrc) {
       icon.innerHTML = "";
-      
       const img = document.createElement('img');
       img.src = myIconSrc;
       img.style.width = "40px";
@@ -339,160 +411,69 @@ function selectTheme(theme) {
       img.style.objectFit = "cover";
       img.style.borderRadius = "50%";
       img.style.display = "block";
-      
       icon.appendChild(img);
-    });
-  }
-
-  // 5. 話者が「自分」の時はハート選択を非表示、「推し」の時は表示する処理
-  function toggleHeartSelect() {
-    const speaker = document.getElementById('speaker-select').value;
-    const heartGroup = document.getElementById('oshi-heart-group');
-
-    if (speaker === "自分") {
-      heartGroup.classList.add('is-hidden');
     } else {
-      heartGroup.classList.remove('is-hidden');
+      icon.textContent = "";
     }
+    
+    row.appendChild(deleteBtn);
+    row.appendChild(bubble);
+    row.appendChild(icon);
   }
 
-  // 6. ページ読み込み時の初期化（※toggleHeartSelectが定義された“下”に置く）
-  document.addEventListener('DOMContentLoaded', function(){
-    toggleHeartSelect();
-    changeTheme();
-  });
+  chatLogs.appendChild(row);
+  messageInput.value = "";
+  messageInput.focus();
+}
 
-// 会話ログ（吹き出し）追加関数
-  function addMessage() {
-    const speakerSelect = document.getElementById('speaker-select');
-    const messageInput = document.getElementById('message-input');
-    const heartSelect = document.getElementById('heart-select');
+// 動作メッセージ追加関数
+function addAction() {
+  const actionInput = document.getElementById('action-input');
+  const text = actionInput.value.trim();
 
-    const speaker = speakerSelect.value;
-    const text = messageInput.value.trim();
+  if (text === "") return;
 
-    if (text === "") return;
+  const chatLogs = document.getElementById('chat-logs');
 
-    const chatLogs = document.getElementById('chat-logs');
+  const systemDiv = document.createElement('div');
+  systemDiv.classList.add('chat-system');
 
-    const row = document.createElement('div');
-    row.classList.add('chat-row');
+  const innerSpan = document.createElement('span');
+  innerSpan.classList.add('chat-system-inner');
+  innerSpan.textContent = text;
 
-    const icon = document.createElement('div');
-    icon.classList.add('chat-icon');
-
-    const bubble = document.createElement('div');
-    bubble.classList.add('chat-bubble');
-    bubble.textContent = text;
-
-    // 直接クリック編集
-    bubble.onclick = function() {
-      const currentText = bubble.textContent;
-      const newText = prompt("セリフを編集してください:", currentText);
-      if (newText !== null && newText.trim() !== "") {
-        bubble.textContent = newText.trim();
-      }
-    };
-
-    // ホバー削除ボタン
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = "button";
-    deleteBtn.textContent = "×";
-    deleteBtn.classList.add('chat-delete-btn');
-    deleteBtn.onclick = function(e) {
-      e.stopPropagation();
-      chatLogs.removeChild(row);
-    };
-
-    if (speaker === "推し") {
-      row.classList.add('chat-row-oshi');
-      bubble.classList.add('chat-oshi');
-      icon.textContent = heartSelect.value; // フォームで選んだハートをセット
-      
-      row.appendChild(icon);
-      row.appendChild(bubble);
-      row.appendChild(deleteBtn);
-} else {
-      row.classList.add('chat-row-me');
-      bubble.classList.add('chat-me');
-      
-      icon.classList.add('my-icon-container');
-      
-if (myIconSrc) {
-        // 文字列ではなく、JSの要素として安全に作成して縦伸びを完全に防ぐ
-        icon.innerHTML = "";
-        const img = document.createElement('img');
-        img.src = myIconSrc;
-        img.style.width = "40px";
-        img.style.height = "40px";
-        img.style.objectFit = "cover";
-        img.style.borderRadius = "50%";
-        img.style.display = "block";
-        icon.appendChild(img);
-      } else {
-        icon.textContent = "";
-      }
-      
-      row.appendChild(deleteBtn);
-      row.appendChild(bubble);
-      row.appendChild(icon);
+  innerSpan.onclick = function() {
+    const currentText = innerSpan.textContent;
+    const newText = prompt("動作・出来事を編集してください:", currentText);
+    if (newText !== null && newText.trim() !== "") {
+      innerSpan.textContent = newText.trim();
     }
+  };
 
-chatLogs.appendChild(row);
-    messageInput.value = "";
-    messageInput.focus();
-  }
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "×";
+  deleteBtn.classList.add('chat-delete-btn');
+  deleteBtn.onclick = function(e) {
+    e.stopPropagation();
+    chatLogs.removeChild(systemDiv);
+  };
 
-  // 動作メッセージ追加関数
-  function addAction() {
-    const actionInput = document.getElementById('action-input');
-    const text = actionInput.value.trim();
+  systemDiv.appendChild(innerSpan);
+  systemDiv.appendChild(deleteBtn);
+  chatLogs.appendChild(systemDiv);
 
-    if (text === "") return;
+  actionInput.value = "";
+  actionInput.focus();
+}
 
-    const chatLogs = document.getElementById('chat-logs');
+// MEMO欄反映
+function updateMemo() {
+  const memoVal = document.getElementById('memo').value;
+  document.getElementById('prev-memo-text').textContent = memoVal || '';
+}
 
-    const systemDiv = document.createElement('div');
-    systemDiv.classList.add('chat-system');
-
-    const innerSpan = document.createElement('span');
-    innerSpan.classList.add('chat-system-inner');
-    innerSpan.textContent = text;
-
-    // 直接クリック編集
-    innerSpan.onclick = function() {
-      const currentText = innerSpan.textContent;
-      const newText = prompt("動作・出来事を編集してください:", currentText);
-      if (newText !== null && newText.trim() !== "") {
-        innerSpan.textContent = newText.trim();
-      }
-    };
-
-    // ホバー削除ボタン
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = "button";
-    deleteBtn.textContent = "×";
-    deleteBtn.classList.add('chat-delete-btn');
-    deleteBtn.onclick = function(e) {
-      e.stopPropagation();
-      chatLogs.removeChild(systemDiv);
-    };
-
-    systemDiv.appendChild(innerSpan);
-    systemDiv.appendChild(deleteBtn);
-    chatLogs.appendChild(systemDiv);
-
-    actionInput.value = "";
-    actionInput.focus();
-  }
-
-  // MEMO欄反映
-  function updateMemo() {
-    const memoVal = document.getElementById('memo').value;
-    document.getElementById('prev-memo-text').textContent = memoVal || '';
-  }
-
-  // レポデータをlocalStorageに保存してアーカイブへ飛ぶ関数
+// レポデータをlocalStorageに保存してアーカイブへ飛ぶ関数
 async function exportAndSaveRecord() {
     const eventVal = document.getElementById('input-event').value || '';
     const dateVal = document.getElementById('input-date').value || '';
@@ -503,7 +484,7 @@ async function exportAndSaveRecord() {
     const memoVal = document.getElementById('memo').value;
     const chatLogsHtml = document.getElementById('chat-logs').innerHTML;
 
-// 1. localStorageにアーカイブ保存
+    // 1. localStorageにアーカイブ保存
     const recordData = {
       id: Date.now(),
       event: eventVal,
@@ -521,271 +502,219 @@ async function exportAndSaveRecord() {
     archives.unshift(recordData);
     localStorage.setItem('repolog_archives', JSON.stringify(archives));
 
-// プレビューを画像として保存する関数（ドット柄完全対応版）
-  const original = document.getElementById('preview-container');
-  if (!original) return;
+    // プレビューを画像として保存する処理
+    const original = document.getElementById('preview-container');
+    if (!original) return;
 
-  const clone = original.cloneNode(true);
+    const clone = original.cloneNode(true);
 
-  // 出力用アイコン画像を正方形に切り抜く
-  const originalIcons = original.querySelectorAll('.chat-icon img');
-  const cloneIcons = clone.querySelectorAll('.chat-icon img');
+    const originalIcons = original.querySelectorAll('.chat-icon img');
+    const cloneIcons = clone.querySelectorAll('.chat-icon img');
 
-  originalIcons.forEach((originalImg, index) => {
-    const cloneImg = cloneIcons[index];
-    if (!cloneImg) return;
+    originalIcons.forEach((originalImg, index) => {
+      const cloneImg = cloneIcons[index];
+      if (!cloneImg) return;
 
-    try {
-      const width = originalImg.naturalWidth;
-      const height = originalImg.naturalHeight;
+      try {
+        const width = originalImg.naturalWidth;
+        const height = originalImg.naturalHeight;
 
-      if (width > 0 && height > 0) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 80;
-        canvas.height = 80;
+        if (width > 0 && height > 0) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 80;
+          canvas.height = 80;
 
-        const ctx = canvas.getContext('2d');
-        const size = Math.min(width, height);
-        const sx = (width - size) / 2;
-        const sy = (height - size) / 2;
+          const ctx = canvas.getContext('2d');
+          const size = Math.min(width, height);
+          const sx = (width - size) / 2;
+          const sy = (height - size) / 2;
 
-        ctx.drawImage(
-          originalImg,
-          sx, sy, size, size,
-          0, 0, 80, 80
-        );
-
-        cloneImg.src = canvas.toDataURL('image/png');
-      } else {
+          ctx.drawImage(originalImg, sx, sy, size, size, 0, 0, 80, 80);
+          cloneImg.src = canvas.toDataURL('image/png');
+        } else {
+          cloneImg.src = originalImg.src;
+        }
+      } catch (error) {
+        console.warn('アイコン画像の切り抜きに失敗しました:', error);
         cloneImg.src = originalImg.src;
       }
-    } catch (error) {
-      console.warn('アイコン画像の切り抜きに失敗しました:', error);
-      cloneImg.src = originalImg.src;
-    }
 
-    cloneImg.setAttribute('width', '40');
-    cloneImg.setAttribute('height', '40');
-    cloneImg.style.setProperty('width', '40px', 'important');
-    cloneImg.style.setProperty('height', '40px', 'important');
-    cloneImg.style.setProperty('object-fit', 'cover', 'important');
-    cloneImg.style.setProperty('object-position', 'center', 'important');
-  });
-
-  const rect = original.getBoundingClientRect();
-
-  clone.style.width = rect.width + 'px';
-  clone.style.boxSizing = 'border-box';
-  clone.style.position = 'fixed';
-  clone.style.left = '-10000px';
-  clone.style.top = '0';
-  clone.style.margin = '0';
-
-  // 削除ボタンを非表示にする
-  clone.querySelectorAll('.chat-delete-btn').forEach(btn => {
-    btn.style.display = 'none';
-  });
-
-  // テーマごとのドット色
-  const colors = {
-    'theme-yellow': '#ffe44d',
-    'theme-gray': '#cccccc',
-    'theme-pink': '#f9b5de',
-    'theme-blue': '#87ceeb',
-    'theme-red': '#ff9999',
-    'theme-green': '#98fb98',
-    'theme-purple': '#dda0dd',
-    'theme-dark': '#555555'
-  };
-
-if (original.classList.contains('pattern-dots')) {
-  const colors = {
-    'theme-yellow': '#ffe44d',
-    'theme-gray': '#cccccc',
-    'theme-pink': '#f9b5de',
-    'theme-blue': '#87ceeb',
-    'theme-red': '#ff9999',
-    'theme-green': '#98fb98',
-    'theme-purple': '#dda0dd',
-    'theme-dark': '#555555'
-  };
-
-  const theme = [...original.classList].find(c => colors[c]);
-  const dotColor = colors[theme] || '#555555';
-
-  // SVGで、同じ大きさの丸を斜めに配置する
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg"
-         width="20" height="20" viewBox="0 0 20 20">
-      <circle cx="0" cy="0" r="2" fill="${dotColor}"/>
-      <circle cx="10" cy="10" r="2" fill="${dotColor}"/>
-      <circle cx="20" cy="0" r="2" fill="${dotColor}"/>
-      <circle cx="0" cy="20" r="2" fill="${dotColor}"/>
-      <circle cx="20" cy="20" r="2" fill="${dotColor}"/>
-    </svg>`;
-
-  clone.style.backgroundImage =
-    `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
-  clone.style.backgroundSize = '20px 20px';
-  clone.style.backgroundPosition = '0 0';
-  clone.style.backgroundRepeat = 'repeat';
-  }
-
-
-if (original.classList.contains('pattern-stripe')) {
-  const colors = {
-    'theme-yellow': '#ffe44d',
-    'theme-gray': '#cccccc',
-    'theme-pink': '#f9b5de',
-    'theme-blue': '#87ceeb',
-    'theme-red': '#ff9999',
-    'theme-green': '#98fb98',
-    'theme-purple': '#dda0dd',
-    'theme-dark': '#555555'
-  };
-
-  const theme = [...original.classList].find(c => colors[c]);
-  const stripeColor = colors[theme] || '#555555';
-
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg"
-         width="28" height="28"
-         viewBox="0 0 28 28">
-      <defs>
-        <pattern id="stripe"
-                 width="20" height="20"
-                 patternUnits="userSpaceOnUse"
-                 patternTransform="rotate(-45)">
-          <rect width="10" height="20"
-                fill="${stripeColor}"
-                fill-opacity="0.3"/>
-        </pattern>
-      </defs>
-      <rect width="28" height="28" fill="url(#stripe)"/>
-    </svg>`;
-
-  clone.style.backgroundImage =
-    `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
-  clone.style.backgroundSize = '28px 28px';
-  clone.style.backgroundPosition = '0 0';
-  clone.style.backgroundRepeat = 'repeat';
-}
-
-
-  // 自分のアイコン画像の縦横比を出力時にも固定
-  clone.querySelectorAll('.my-icon-container').forEach(icon => {
-    icon.style.setProperty('width', '40px', 'important');
-    icon.style.setProperty('height', '40px', 'important');
-    icon.style.setProperty('min-width', '40px', 'important');
-    icon.style.setProperty('min-height', '40px', 'important');
-    icon.style.setProperty('max-width', '40px', 'important');
-    icon.style.setProperty('max-height', '40px', 'important');
-    icon.style.setProperty('flex', '0 0 40px', 'important');
-    icon.style.setProperty('flex-shrink', '0', 'important');
-    icon.style.setProperty('overflow', 'hidden', 'important');
-    icon.style.setProperty('border-radius', '50%', 'important');
-
-    const img = icon.querySelector('img');
-    if (img) {
-      img.style.setProperty('width', '100%', 'important');
-      img.style.setProperty('height', '100%', 'important');
-      img.style.setProperty('min-width', '0', 'important');
-      img.style.setProperty('min-height', '0', 'important');
-      img.style.setProperty('max-width', '100%', 'important');
-      img.style.setProperty('max-height', '100%', 'important');
-      img.style.setProperty('object-fit', 'cover', 'important');
-      img.style.setProperty('object-position', 'center', 'important');
-      img.style.setProperty('display', 'block', 'important');
-      img.style.setProperty('flex-shrink', '0', 'important');
-      img.style.setProperty('border-radius', '50%', 'important');
-    }
-  });
-
-  document.body.appendChild(clone);
-
-  try {
-    const canvas = await html2canvas(clone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: null,
-      logging: false
+      cloneImg.setAttribute('width', '40');
+      cloneImg.setAttribute('height', '40');
+      cloneImg.style.setProperty('width', '40px', 'important');
+      cloneImg.style.setProperty('height', '40px', 'important');
+      cloneImg.style.setProperty('object-fit', 'cover', 'important');
+      cloneImg.style.setProperty('object-position', 'center', 'important');
     });
 
+    const rect = original.getBoundingClientRect();
 
+    clone.style.width = rect.width + 'px';
+    clone.style.boxSizing = 'border-box';
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.margin = '0';
 
-const blob = await new Promise((resolve, reject) => {
-  canvas.toBlob(result => {
-    if (result) {
-      resolve(result);
-    } else {
-      reject(new Error('PNG画像の作成に失敗しました'));
+    clone.querySelectorAll('.chat-delete-btn').forEach(btn => {
+      btn.style.display = 'none';
+    });
+
+    const colors = {
+      'theme-yellow': '#ffe44d',
+      'theme-gray': '#cccccc',
+      'theme-pink': '#f9b5de',
+      'theme-blue': '#87ceeb',
+      'theme-red': '#ff9999',
+      'theme-green': '#98fb98',
+      'theme-purple': '#dda0dd',
+      'theme-dark': '#555555'
+    };
+
+    if (original.classList.contains('pattern-dots')) {
+      const theme = [...original.classList].find(c => colors[c]);
+      const dotColor = colors[theme] || '#555555';
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+          <circle cx="0" cy="0" r="2" fill="${dotColor}"/>
+          <circle cx="10" cy="10" r="2" fill="${dotColor}"/>
+          <circle cx="20" cy="0" r="2" fill="${dotColor}"/>
+          <circle cx="0" cy="20" r="2" fill="${dotColor}"/>
+          <circle cx="20" cy="20" r="2" fill="${dotColor}"/>
+        </svg>`;
+
+      clone.style.backgroundImage = `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
+      clone.style.backgroundSize = '20px 20px';
+      clone.style.backgroundPosition = '0 0';
+      clone.style.backgroundRepeat = 'repeat';
     }
-  }, 'image/png');
-});
 
-const file = new File([blob], 'repolog_experiment.png', {
-  type: 'image/png'
-});
+    if (original.classList.contains('pattern-stripe')) {
+      const theme = [...original.classList].find(c => colors[c]);
+      const stripeColor = colors[theme] || '#555555';
 
-// 画像のURL（Data URL）を生成
-  const imageUrl = canvas.toDataURL('image/png');
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+          <defs>
+            <pattern id="stripe" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+              <rect width="10" height="20" fill="${stripeColor}" fill-opacity="0.3"/>
+            </pattern>
+          </defs>
+          <rect width="28" height="28" fill="url(#stripe)"/>
+        </svg>`;
 
-// 2. 既存のモーダルがあれば消す
-const existingModal = document.getElementById('save-modal');
-if (existingModal) existingModal.remove();
+      clone.style.backgroundImage = `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
+      clone.style.backgroundSize = '28px 28px';
+      clone.style.backgroundPosition = '0 0';
+      clone.style.backgroundRepeat = 'repeat';
+    }
 
-// モバイル端末判定
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    clone.querySelectorAll('.my-icon-container').forEach(icon => {
+      icon.style.setProperty('width', '40px', 'important');
+      icon.style.setProperty('height', '40px', 'important');
+      icon.style.setProperty('min-width', '40px', 'important');
+      icon.style.setProperty('min-height', '40px', 'important');
+      icon.style.setProperty('max-width', '40px', 'important');
+      icon.style.setProperty('max-height', '40px', 'important');
+      icon.style.setProperty('flex', '0 0 40px', 'important');
+      icon.style.setProperty('flex-shrink', '0', 'important');
+      icon.style.setProperty('overflow', 'hidden', 'important');
+      icon.style.setProperty('border-radius', '50%', 'important');
 
-  if (isMobile) {
-// 3. スマホでも確実に長押し保存できる専用モーダルを作成
-const modal = document.createElement('div');
-modal.id = 'save-modal';
-modal.style.cssText = `
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 16px;
-  backdrop-filter: blur(6px);
-`;
+      const img = icon.querySelector('img');
+      if (img) {
+        img.style.setProperty('width', '100%', 'important');
+        img.style.setProperty('height', '100%', 'important');
+        img.style.setProperty('min-width', '0', 'important');
+        img.style.setProperty('min-height', '0', 'important');
+        img.style.setProperty('max-width', '100%', 'important');
+        img.style.setProperty('max-height', '100%', 'important');
+        img.style.setProperty('object-fit', 'cover', 'important');
+        img.style.setProperty('object-position', 'center', 'important');
+        img.style.setProperty('display', 'block', 'important');
+        img.style.setProperty('flex-shrink', '0', 'important');
+        img.style.setProperty('border-radius', '50%', 'important');
+      }
+    });
 
-modal.innerHTML = `
-  <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 24px; text-align: center; max-width: 90%; width: 360px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-    <p style="color: #fff; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600; letter-spacing: 1px;">画像を長押しして保存してください ✦</p>
-    <img src="${imageUrl}" style="width: 100%; height: auto; border-radius: 14px; display: block; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
-    <button id="close-modal-btn" style="background: linear-gradient(135deg, #e08bb2, #f7b0d0); border: none; color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: bold; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(224,139,178,0.4);">保存完了 / 閉じる</button>
-  </div>
-`;
+    document.body.appendChild(clone);
 
-document.body.appendChild(modal);
+    try {
+      const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false
+      });
 
-// 閉じるボタンを押したらアーカイブへ移動
-document.getElementById('close-modal-btn').addEventListener('click', () => {
-  modal.remove();
-  alert("レポを保存しました！アーカイブに記録します。");
-  window.location.href = "archive.html";
-});
-  } else {
-  // PC（または共有非対応環境）では直接ファイルをダウンロード
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(result => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(new Error('PNG画像の作成に失敗しました'));
+          }
+        }, 'image/png');
+      });
 
-  link.href = url;
-  link.download = 'repolog_experiment.png';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+      const imageUrl = canvas.toDataURL('image/png');
 
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-}
+      const existingModal = document.getElementById('save-modal');
+      if (existingModal) existingModal.remove();
 
-alert("レポを保存しました！画像ダウンロードとアーカイブ記録が完了しました。");
-window.location.href = "archive.html";
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        const modal = document.createElement('div');
+        modal.id = 'save-modal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0, 0, 0, 0.75);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 16px;
+          backdrop-filter: blur(6px);
+        `;
+
+        modal.innerHTML = `
+          <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 24px; text-align: center; max-width: 90%; width: 360px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <p style="color: #fff; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600; letter-spacing: 1px;">画像を長押しして保存してください ✦</p>
+            <img src="${imageUrl}" style="width: 100%; height: auto; border-radius: 14px; display: block; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
+            <button id="close-modal-btn" style="background: linear-gradient(135deg, #e08bb2, #f7b0d0); border: none; color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: bold; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(224,139,178,0.4);">保存完了 / 閉じる</button>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+          modal.remove();
+          alert("レポを保存しました！アーカイブに記録します。");
+          window.location.href = "archive.html";
+        });
+      } else {
+        // PC向けダウンロード処理
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = 'repolog_experiment.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+        // PCでダウンロードが確実に走った後に少し遅れてアーカイブへ遷移
+        setTimeout(() => {
+          alert("レポを保存しました！画像ダウンロードとアーカイブ記録が完了しました。");
+          window.location.href = "archive.html";
+        }, 300);
+      }
 
     } catch (err) {
       console.error('画像出力エラー:', err);
@@ -794,8 +723,7 @@ window.location.href = "archive.html";
     } finally {
       clone.remove();
     }
-  }
-
+}
 </script>
 
 </body>
