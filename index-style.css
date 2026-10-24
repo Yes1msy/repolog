@@ -102,8 +102,7 @@ body {
 /* ホバー時の設定：右下に綺麗な影をつける */
 .star-btn:hover {
   transform: scale(1.03);
-  /* 右下に落ちるほんのりピンク×黒の影 (X軸 3px, Y軸 5px, ぼかし 6px) */
-  filter: drop-shadow(3px 5px 6px rgba(0, 0, 0, 0.35)) drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(3px 5px 1px rgba(0, 0, 0, 0.35));
 }
 
 /* 背景の星SVG */
@@ -154,7 +153,7 @@ body {
   content: "★";
   font-size: 13px;
   color: #fbcfe8; /* 中は淡いピンク */
-  -webkit-text-stroke: 1px #111111; /* 黒の縁取り */
+  -webkit-text-stroke: 0.8px #111111; /* 黒の縁取り */
   display: inline-block;
 }
 
